@@ -594,7 +594,7 @@
             let desc = '';
             if (service) {
                 const descField = service.querySelector('.service-desc');
-                desc = descField ? descField.value : '';
+                desc = descField ? unescapeHtml(descField.value) : '';
             }
             document.getElementById('serviceDescEditor').value = desc;
             document.getElementById('serviceDescModal').classList.add('active');
