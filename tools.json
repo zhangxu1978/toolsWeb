@@ -58,5 +58,16 @@
     "healthCheckUrl": "",
     "status": "stopped",
     "homeUrl": "http://localhost:5173"
+  },
+  {
+    "id": "1774707074549",
+    "name": "番茄专用",
+    "type": "other",
+    "workDir": "D:\\work\\work\\git\\tools\\webagent",
+    "command": "start.bat",
+    "healthCheckUrl": "http://127.0.0.1:3071",
+    "status": "stopped",
+    "homeUrl": "http://127.0.0.1:3071/index.html",
+    "services": []
   }
 ]

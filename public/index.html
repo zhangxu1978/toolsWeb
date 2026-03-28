@@ -399,11 +399,6 @@
                         <label>首页地址（可选）</label>
                         <input type="text" id="toolHomeUrl" placeholder="例如: http://localhost:3000">
                     </div>
-                    <div class="form-group">
-                        <label>服务接口（可选）</label>
-                        <div id="servicesContainer"></div>
-                        <button type="button" class="btn btn-sm" onclick="addServiceField()" style="margin-top: 8px;">+ 添加服务</button>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -413,8 +408,43 @@
         </div>
     </div>
 
+    <div id="serviceModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>服务接口管理</h2>
+                <button class="modal-close" onclick="closeServiceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="serviceEditContainer"></div>
+                <button type="button" class="btn btn-sm" onclick="addServiceEditField()" style="margin-top: 8px;">+ 添加服务</button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeServiceModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveServices()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="serviceDescModal" class="modal-overlay">
+        <div class="modal" style="width: 800px;">
+            <div class="modal-header">
+                <h2>编辑服务说明</h2>
+                <button class="modal-close" onclick="closeServiceDescModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="serviceDescEditor" style="width: 100%; height: 400px; padding: 12px; border: 1px solid #dcdfe6; border-radius: 4px; font-family: monospace; font-size: 14px; resize: vertical;"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeServiceDescModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveServiceDesc()">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let tools = [];
+        let currentToolId = null;
+        let currentServiceIndex = null;
 
         async function loadTools() {
             try {
@@ -465,17 +495,6 @@
                         ${tool.homeUrl ? `
                             <p><label>首页地址：</label><a href="${tool.homeUrl}" target="_blank" style="color: #409eff;">${tool.homeUrl}</a></p>
                         ` : ''}
-                        ${tool.services && tool.services.length > 0 ? `
-                            <button class="btn btn-sm" onclick="toggleServices('${tool.id}')" style="margin-top: 8px;">查看服务</button>
-                            <div id="services-${tool.id}" class="services-list" style="display: none;">
-                                ${tool.services.map(s => `
-                                    <div class="service-item">
-                                        <p><label>接口地址：</label><a href="${s.url}" target="_blank">${s.url}</a></p>
-                                        <p><label>调用说明：</label>${s.description || '-'}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
                     </div>
                     <div class="tool-actions">
                         ${tool.status === 'running' ? `
@@ -486,6 +505,9 @@
                         `}
                         <button class="btn btn-sm" onclick="editTool('${tool.id}')">编辑</button>
                         <button class="btn btn-danger btn-sm" onclick="deleteTool('${tool.id}')">删除</button>
+                       
+                            <button class="btn btn-primary btn-sm" onclick="toggleServices('${tool.id}')">服务</button>
+                        
                     </div>
                 </div>
             `).join('');
@@ -505,70 +527,121 @@
                 document.getElementById('toolCommand').value = tool.command;
                 document.getElementById('toolHealthCheck').value = tool.healthCheckUrl || '';
                 document.getElementById('toolHomeUrl').value = tool.homeUrl || '';
-                renderServiceFields(tool.services || []);
             } else {
                 title.textContent = '添加工具';
                 form.reset();
                 document.getElementById('toolId').value = '';
-                renderServiceFields([]);
             }
             
             modal.classList.add('active');
         }
 
-        function renderServiceFields(services) {
-            const container = document.getElementById('servicesContainer');
-            container.innerHTML = services.map((s, i) => `
+        function toggleServices(toolId) {
+            currentToolId = toolId;
+            const tool = tools.find(t => t.id === toolId);
+            const container = document.getElementById('serviceEditContainer');
+            container.innerHTML = (tool.services || []).map((s, i) => `
                 <div class="service-field" data-index="${i}">
-                    <input type="text" placeholder="接口地址" class="service-url" value="${s.url || ''}">
-                    <input type="text" placeholder="调用说明" class="service-desc" value="${s.description || ''}">
-                    <button type="button" class="remove-btn" onclick="removeServiceField(${i})">×</button>
+                    <input type="text" placeholder="服务名称" class="service-name" value="${s.name || ''}">
+                    <button type="button" class="btn btn-sm" onclick="editServiceDesc(${i})">编辑说明</button>
+                    <button type="button" class="remove-btn" onclick="removeServiceEditField(${i})">×</button>
                 </div>
             `).join('');
+            document.getElementById('serviceModal').classList.add('active');
         }
 
-        function addServiceField() {
-            const container = document.getElementById('servicesContainer');
+        function addServiceEditField() {
+            const container = document.getElementById('serviceEditContainer');
             const index = container.children.length;
             const div = document.createElement('div');
             div.className = 'service-field';
             div.dataset.index = index;
             div.innerHTML = `
-                <input type="text" placeholder="接口地址" class="service-url" value="">
-                <input type="text" placeholder="调用说明" class="service-desc" value="">
-                <button type="button" class="remove-btn" onclick="removeServiceField(${index})">×</button>
+                <input type="text" placeholder="服务名称" class="service-name" value="">
+                <button type="button" class="btn btn-sm" onclick="editServiceDesc(${index})">编辑说明</button>
+                <button type="button" class="remove-btn" onclick="removeServiceEditField(${index})">×</button>
             `;
             container.appendChild(div);
         }
 
-        function removeServiceField(index) {
-            const container = document.getElementById('servicesContainer');
+        function editServiceDesc(index) {
+            currentServiceIndex = index;
+            const container = document.getElementById('serviceEditContainer');
+            const fields = container.querySelectorAll('.service-field');
+            const service = fields[index];
+            let desc = '';
+            if (service) {
+                const descField = service.querySelector('.service-desc');
+                desc = descField ? descField.value : '';
+            }
+            document.getElementById('serviceDescEditor').value = desc;
+            document.getElementById('serviceDescModal').classList.add('active');
+        }
+
+        function closeServiceDescModal() {
+            document.getElementById('serviceDescModal').classList.remove('active');
+            currentServiceIndex = null;
+        }
+
+        function saveServiceDesc() {
+            if (currentServiceIndex === null) return;
+            const container = document.getElementById('serviceEditContainer');
+            const fields = container.querySelectorAll('.service-field');
+            const desc = document.getElementById('serviceDescEditor').value;
+            
+            if (fields[currentServiceIndex]) {
+                let descField = fields[currentServiceIndex].querySelector('.service-desc');
+                if (!descField) {
+                    descField = document.createElement('input');
+                    descField.type = 'hidden';
+                    descField.className = 'service-desc';
+                    fields[currentServiceIndex].appendChild(descField);
+                }
+                descField.value = desc;
+            }
+            closeServiceDescModal();
+        }
+
+        function removeServiceEditField(index) {
+            const container = document.getElementById('serviceEditContainer');
             const fields = container.querySelectorAll('.service-field');
             if (fields[index]) {
                 fields[index].remove();
             }
         }
 
-        function getServicesFromForm() {
-            const container = document.getElementById('servicesContainer');
+        function closeServiceModal() {
+            document.getElementById('serviceModal').classList.remove('active');
+            currentToolId = null;
+        }
+
+        async function saveServices() {
+            if (!currentToolId) return;
+            
+            const container = document.getElementById('serviceEditContainer');
             const fields = container.querySelectorAll('.service-field');
             const services = [];
             fields.forEach(field => {
-                const url = field.querySelector('.service-url').value.trim();
-                const desc = field.querySelector('.service-desc').value.trim();
-                if (url) {
-                    services.push({ url, description: desc });
+                const name = field.querySelector('.service-name').value.trim();
+                const desc = field.querySelector('.service-desc') ? field.querySelector('.service-desc').value.trim() : '';
+                if (name) {
+                    services.push({ name, description: desc });
                 }
             });
-            return services;
-        }
 
-        function toggleServices(toolId) {
-            const el = document.getElementById('services-' + toolId);
-            if (el.style.display === 'none') {
-                el.style.display = 'block';
-            } else {
-                el.style.display = 'none';
+            try {
+                const response = await fetch(`/api/tools/${currentToolId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ services })
+                });
+                if (response.ok) {
+                    closeServiceModal();
+                    loadTools();
+                }
+            } catch (error) {
+                console.error('保存服务失败:', error);
+                alert('保存失败');
             }
         }
 
@@ -584,8 +657,7 @@
                 workDir: document.getElementById('toolWorkDir').value,
                 command: document.getElementById('toolCommand').value,
                 healthCheckUrl: document.getElementById('toolHealthCheck').value,
-                homeUrl: document.getElementById('toolHomeUrl').value,
-                services: getServicesFromForm()
+                homeUrl: document.getElementById('toolHomeUrl').value
             };
 
             if (!toolData.name || !toolData.workDir || !toolData.command) {
