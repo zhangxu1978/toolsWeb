@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1774701422193",
+    "name": "大模型api接口本地服务",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\apiweb",
+    "command": "npm run dev",
+    "healthCheckUrl": "http://127.0.0.1:3099/health",
+    "status": "stopped",
+    "homeUrl": "http://127.0.0.1:3099"
+  },
+  {
+    "id": "1774702408551",
+    "name": "文本转语音模型",
+    "type": "other",
+    "workDir": "D:\\BaiduNetdiskDownload\\ChatTTS",
+    "command": "go-webui-mix.bat",
+    "healthCheckUrl": "",
+    "status": "stopped",
+    "homeUrl": "http://127.0.0.1:7860/"
+  },
+  {
+    "id": "1774702921653",
+    "name": "小说工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\xiaoshuo",
+    "command": "npm start",
+    "healthCheckUrl": "http://localhost:8090/health",
+    "status": "stopped",
+    "homeUrl": "http://127.0.0.1:8090"
+  },
+  {
+    "id": "1774703263812",
+    "name": "游戏数据",
+    "type": "other",
+    "workDir": "D:\\work\\work\\git\\game-rpg\\jsonTest\\jsonTest",
+    "command": "start_and_open.bat",
+    "healthCheckUrl": "",
+    "status": "stopped",
+    "homeUrl": "http://127.0.0.1:8080"
+  },
+  {
+    "id": "1774703715043",
+    "name": "音视频合并工具",
+    "type": "other",
+    "workDir": "D:\\work\\work\\git\\tools\\zuheshipin",
+    "command": "启动.bat",
+    "healthCheckUrl": "",
+    "status": "stopped",
+    "homeUrl": "http://127.0.0.1:5000"
+  },
+  {
+    "id": "1774706023544",
+    "name": "数据采集器",
+    "type": "other",
+    "workDir": "D:\\work\\work\\git\\skills",
+    "command": "start.bat",
+    "healthCheckUrl": "",
+    "status": "stopped",
+    "homeUrl": "http://localhost:5173"
+  }
+]

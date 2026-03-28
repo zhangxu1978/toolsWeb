@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工具管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #409eff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #66b1ff;
+        }
+
+        .btn-success {
+            background: #67c23a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #85ce61;
+        }
+
+        .btn-danger {
+            background: #f56c6c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #f78989;
+        }
+
+        .btn-warning {
+            background: #e6a23c;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #ebb563;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 16px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.2s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .tool-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .tool-type {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #ecf5ff;
+            color: #409eff;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .tool-info {
+            margin-bottom: 12px;
+        }
+
+        .tool-info p {
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .tool-info label {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-running {
+            background: #f0f9ff;
+            color: #409eff;
+        }
+
+        .status-stopped {
+            background: #f5f7fa;
+            color: #909399;
+        }
+
+        .status-healthy {
+            background: #f0f9ff;
+            color: #67c23a;
+        }
+
+        .status-unhealthy {
+            background: #fef0f0;
+            color: #f56c6c;
+        }
+
+        .tool-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #409eff;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state p {
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        .health-info {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .service-field {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .service-field input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .service-field .remove-btn {
+            background: #f56c6c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .services-list {
+            margin-top: 12px;
+        }
+
+        .service-item {
+            background: #f5f7fa;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .service-item p {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .service-item label {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .service-item a {
+            color: #409eff;
+            text-decoration: none;
+        }
+
+        .service-item a:hover {
+            text-decoration: underline;
+        }
+
+        .service-actions {
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>工具管理</h1>
+            <button class="btn btn-primary" onclick="openModal()">+ 添加工具</button>
+        </div>
+        
+        <div id="toolGrid" class="tool-grid"></div>
+        
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <p>暂无工具，点击添加按钮开始</p>
+        </div>
+    </div>
+
+    <div id="modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">添加工具</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="toolForm">
+                    <input type="hidden" id="toolId">
+                    <div class="form-group">
+                        <label>工具名称</label>
+                        <input type="text" id="toolName" required placeholder="例如: My Server">
+                    </div>
+                    <div class="form-group">
+                        <label>服务器类型</label>
+                        <select id="toolType" required>
+                            <option value="npm">npm</option>
+                            <option value="python">python</option>
+                            <option value="node">node</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>运行目录</label>
+                        <input type="text" id="toolWorkDir" required placeholder="例如: D:\project\myapp">
+                    </div>
+                    <div class="form-group">
+                        <label>启动命令</label>
+                        <input type="text" id="toolCommand" required placeholder="例如: npm run dev">
+                    </div>
+                    <div class="form-group">
+                        <label>健康检查 URL（可选）</label>
+                        <input type="text" id="toolHealthCheck" placeholder="例如: http://localhost:3000/health">
+                    </div>
+                    <div class="form-group">
+                        <label>首页地址（可选）</label>
+                        <input type="text" id="toolHomeUrl" placeholder="例如: http://localhost:3000">
+                    </div>
+                    <div class="form-group">
+                        <label>服务接口（可选）</label>
+                        <div id="servicesContainer"></div>
+                        <button type="button" class="btn btn-sm" onclick="addServiceField()" style="margin-top: 8px;">+ 添加服务</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveTool()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tools = [];
+
+        async function loadTools() {
+            try {
+                const response = await fetch('/api/tools');
+                tools = await response.json();
+                renderTools();
+            } catch (error) {
+                console.error('加载工具失败:', error);
+            }
+        }
+
+        function renderTools() {
+            const grid = document.getElementById('toolGrid');
+            const empty = document.getElementById('emptyState');
+            
+            if (tools.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+            
+            grid.innerHTML = tools.map(tool => `
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div>
+                            <span class="tool-name">${tool.name}</span>
+                            <span class="tool-type">${tool.type}</span>
+                        </div>
+                        <span class="status-badge ${tool.status === 'running' ? 'status-running' : 'status-stopped'}">
+                            ${tool.status === 'running' ? '运行中' : '已停止'}
+                        </span>
+                    </div>
+                    <div class="tool-info">
+                        <p><label>运行目录：</label>${tool.workDir}</p>
+                        <p><label>启动命令：</label>${tool.command}</p>
+                        ${tool.healthCheckUrl ? `
+                            <p><label>健康检查：</label>${tool.healthCheckUrl}</p>
+                            ${tool.health ? `
+                                <span class="status-badge ${tool.health.status === 'healthy' ? 'status-healthy' : 'status-unhealthy'}">
+                                    ${tool.health.status === 'healthy' ? '✓ 健康' : '✗ 异常'}
+                                </span>
+                                <span class="health-info">${tool.health.message}</span>
+                            ` : ''}
+                        ` : ''}
+                        ${tool.homeUrl ? `
+                            <p><label>首页地址：</label><a href="${tool.homeUrl}" target="_blank" style="color: #409eff;">${tool.homeUrl}</a></p>
+                        ` : ''}
+                        ${tool.services && tool.services.length > 0 ? `
+                            <button class="btn btn-sm" onclick="toggleServices('${tool.id}')" style="margin-top: 8px;">查看服务</button>
+                            <div id="services-${tool.id}" class="services-list" style="display: none;">
+                                ${tool.services.map(s => `
+                                    <div class="service-item">
+                                        <p><label>接口地址：</label><a href="${s.url}" target="_blank">${s.url}</a></p>
+                                        <p><label>调用说明：</label>${s.description || '-'}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="tool-actions">
+                        ${tool.status === 'running' ? `
+                            <button class="btn btn-warning btn-sm" onclick="restartTool('${tool.id}')">重启</button>
+                            <button class="btn btn-danger btn-sm" onclick="stopTool('${tool.id}')">停止</button>
+                        ` : `
+                            <button class="btn btn-success btn-sm" onclick="startTool('${tool.id}')">启动</button>
+                        `}
+                        <button class="btn btn-sm" onclick="editTool('${tool.id}')">编辑</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTool('${tool.id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(tool = null) {
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('toolForm');
+            
+            if (tool) {
+                title.textContent = '编辑工具';
+                document.getElementById('toolId').value = tool.id;
+                document.getElementById('toolName').value = tool.name;
+                document.getElementById('toolType').value = tool.type;
+                document.getElementById('toolWorkDir').value = tool.workDir;
+                document.getElementById('toolCommand').value = tool.command;
+                document.getElementById('toolHealthCheck').value = tool.healthCheckUrl || '';
+                document.getElementById('toolHomeUrl').value = tool.homeUrl || '';
+                renderServiceFields(tool.services || []);
+            } else {
+                title.textContent = '添加工具';
+                form.reset();
+                document.getElementById('toolId').value = '';
+                renderServiceFields([]);
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function renderServiceFields(services) {
+            const container = document.getElementById('servicesContainer');
+            container.innerHTML = services.map((s, i) => `
+                <div class="service-field" data-index="${i}">
+                    <input type="text" placeholder="接口地址" class="service-url" value="${s.url || ''}">
+                    <input type="text" placeholder="调用说明" class="service-desc" value="${s.description || ''}">
+                    <button type="button" class="remove-btn" onclick="removeServiceField(${i})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function addServiceField() {
+            const container = document.getElementById('servicesContainer');
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'service-field';
+            div.dataset.index = index;
+            div.innerHTML = `
+                <input type="text" placeholder="接口地址" class="service-url" value="">
+                <input type="text" placeholder="调用说明" class="service-desc" value="">
+                <button type="button" class="remove-btn" onclick="removeServiceField(${index})">×</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeServiceField(index) {
+            const container = document.getElementById('servicesContainer');
+            const fields = container.querySelectorAll('.service-field');
+            if (fields[index]) {
+                fields[index].remove();
+            }
+        }
+
+        function getServicesFromForm() {
+            const container = document.getElementById('servicesContainer');
+            const fields = container.querySelectorAll('.service-field');
+            const services = [];
+            fields.forEach(field => {
+                const url = field.querySelector('.service-url').value.trim();
+                const desc = field.querySelector('.service-desc').value.trim();
+                if (url) {
+                    services.push({ url, description: desc });
+                }
+            });
+            return services;
+        }
+
+        function toggleServices(toolId) {
+            const el = document.getElementById('services-' + toolId);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        async function saveTool() {
+            const id = document.getElementById('toolId').value;
+            const toolData = {
+                name: document.getElementById('toolName').value,
+                type: document.getElementById('toolType').value,
+                workDir: document.getElementById('toolWorkDir').value,
+                command: document.getElementById('toolCommand').value,
+                healthCheckUrl: document.getElementById('toolHealthCheck').value,
+                homeUrl: document.getElementById('toolHomeUrl').value,
+                services: getServicesFromForm()
+            };
+
+            if (!toolData.name || !toolData.workDir || !toolData.command) {
+                alert('请填写所有必填字段');
+                return;
+            }
+
+            try {
+                const url = id ? `/api/tools/${id}` : '/api/tools';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(toolData)
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    loadTools();
+                } else {
+                    alert('保存失败');
+                }
+            } catch (error) {
+                console.error('保存失败:', error);
+                alert('保存失败');
+            }
+        }
+
+        function editTool(id) {
+            const tool = tools.find(t => t.id === id);
+            if (tool) {
+                openModal(tool);
+            }
+        }
+
+        async function deleteTool(id) {
+            if (!confirm('确定要删除这个工具吗？')) return;
+            
+            try {
+                await fetch(`/api/tools/${id}`, { method: 'DELETE' });
+                loadTools();
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败');
+            }
+        }
+
+        async function startTool(id) {
+            try {
+                const response = await fetch(`/api/tools/${id}/start`, { method: 'POST' });
+                const result = await response.json();
+                if (response.ok) {
+                    loadTools();
+                } else {
+                    alert(result.error || '启动失败');
+                }
+            } catch (error) {
+                console.error('启动失败:', error);
+                alert('启动失败');
+            }
+        }
+
+        async function stopTool(id) {
+            try {
+                const response = await fetch(`/api/tools/${id}/stop`, { method: 'POST' });
+                const result = await response.json();
+                if (response.ok) {
+                    loadTools();
+                } else {
+                    alert(result.error || '停止失败');
+                }
+            } catch (error) {
+                console.error('停止失败:', error);
+                alert('停止失败');
+            }
+        }
+
+        async function restartTool(id) {
+            try {
+                const response = await fetch(`/api/tools/${id}/restart`, { method: 'POST' });
+                const result = await response.json();
+                if (response.ok) {
+                    loadTools();
+                } else {
+                    alert(result.error || '重启失败');
+                }
+            } catch (error) {
+                console.error('重启失败:', error);
+                alert('重启失败');
+            }
+        }
+
+        setInterval(loadTools, 5000);
+
+        loadTools();
+    </script>
+</body>
+</html>
