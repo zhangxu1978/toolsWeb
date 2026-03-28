@@ -436,7 +436,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="closeServiceDescModal()">取消</button>
-                <button class="btn btn-primary" onclick="saveServiceDesc()">保存</button>
+                <button class="btn btn-primary" onclick="saveServiceDesc()">确认</button>
             </div>
         </div>
     </div>
@@ -536,13 +536,34 @@
             modal.classList.add('active');
         }
 
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, '&amp;')
+                       .replace(/</g, '&lt;')
+                       .replace(/>/g, '&gt;')
+                       .replace(/"/g, '&quot;')
+                       .replace(/'/g, '&#039;')
+                       .replace(/\n/g, '&#10;');
+        }
+
+        function unescapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&amp;/g, '&')
+                       .replace(/&lt;/g, '<')
+                       .replace(/&gt;/g, '>')
+                       .replace(/&quot;/g, '"')
+                       .replace(/&#039;/g, "'")
+                       .replace(/&#10;/g, '\n');
+        }
+
         function toggleServices(toolId) {
             currentToolId = toolId;
             const tool = tools.find(t => t.id === toolId);
             const container = document.getElementById('serviceEditContainer');
             container.innerHTML = (tool.services || []).map((s, i) => `
                 <div class="service-field" data-index="${i}">
-                    <input type="text" placeholder="服务名称" class="service-name" value="${s.name || ''}">
+                    <input type="text" placeholder="服务名称" class="service-name" value="${escapeHtml(s.name || '')}">
+                    <input type="hidden" class="service-desc" value="${escapeHtml(s.description || '')}">
                     <button type="button" class="btn btn-sm" onclick="editServiceDesc(${i})">编辑说明</button>
                     <button type="button" class="remove-btn" onclick="removeServiceEditField(${i})">×</button>
                 </div>
@@ -558,6 +579,7 @@
             div.dataset.index = index;
             div.innerHTML = `
                 <input type="text" placeholder="服务名称" class="service-name" value="">
+                <input type="hidden" class="service-desc" value="">
                 <button type="button" class="btn btn-sm" onclick="editServiceDesc(${index})">编辑说明</button>
                 <button type="button" class="remove-btn" onclick="removeServiceEditField(${index})">×</button>
             `;
