@@ -70,6 +70,38 @@ app.get('/api/tools', async (req, res) => {
     res.json(tools);
 });
 
+app.get('/api/tools/info', async (req, res) => {
+    const tools = loadTools();
+    const result = [];
+    
+    for (const tool of tools) {
+        let status = 'stopped';
+        if (runningProcesses[tool.id]) {
+            status = 'running';
+        } else if (tool.healthCheckUrl) {
+            const health = await checkHealth(tool);
+            status = health.status === 'healthy' ? 'running' : 'stopped';
+        }
+        
+        if (status !== 'running') {
+            continue;
+        }
+        
+        const services = (tool.services || []).map(service => ({
+            name: service.name || '',
+            description: service.description || ''
+        }));
+        
+        result.push({
+            toolName: tool.name || '',
+            toolStatus: status,
+            services: services
+        });
+    }
+    
+    res.json(result);
+});
+
 app.post('/api/tools', (req, res) => {
     const tools = loadTools();
     const tool = {
@@ -203,6 +235,6 @@ app.post('/api/tools/:id/restart', async (req, res) => {
     res.json({ success: true, message: '工具已重启' });
 });
 
-app.listen(PORT, () => {
-    console.log(`服务器运行在 http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
 });
