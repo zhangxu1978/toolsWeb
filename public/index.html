@@ -28,11 +28,32 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
+            gap: 16px;
         }
 
         .header h1 {
             font-size: 24px;
             color: #333;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #409eff;
         }
 
         .btn {
@@ -351,7 +372,14 @@
     <div class="container">
         <div class="header">
             <h1>工具管理</h1>
-            <button class="btn btn-primary" onclick="openModal()">+ 添加工具</button>
+            <div class="header-right">
+                <select id="statusFilter" class="filter-select" onchange="filterTools()">
+                    <option value="all">全部</option>
+                    <option value="running">运行中</option>
+                    <option value="stopped">已停止</option>
+                </select>
+                <button class="btn btn-primary" onclick="openModal()">+ 添加工具</button>
+            </div>
         </div>
         
         <div id="toolGrid" class="tool-grid"></div>
@@ -398,6 +426,12 @@
                     <div class="form-group">
                         <label>首页地址（可选）</label>
                         <input type="text" id="toolHomeUrl" placeholder="例如: http://localhost:3000">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="toolHidden" style="width: auto;">
+                            隐藏（运行中工具接口将不显示此工具）
+                        </label>
                     </div>
                 </form>
             </div>
@@ -446,6 +480,10 @@
         let currentToolId = null;
         let currentServiceIndex = null;
 
+        function filterTools() {
+            renderTools();
+        }
+
         async function loadTools() {
             try {
                 const response = await fetch('/api/tools');
@@ -459,9 +497,20 @@
         function renderTools() {
             const grid = document.getElementById('toolGrid');
             const empty = document.getElementById('emptyState');
+            const filter = document.getElementById('statusFilter').value;
             
-            if (tools.length === 0) {
+            const filteredTools = tools.filter(tool => {
+                if (filter === 'all') return true;
+                return tool.status === filter;
+            });
+            
+            if (filteredTools.length === 0) {
                 grid.style.display = 'none';
+                if (tools.length === 0) {
+                    empty.querySelector('p').textContent = '暂无工具，点击添加按钮开始';
+                } else {
+                    empty.querySelector('p').textContent = '没有符合条件的工具';
+                }
                 empty.style.display = 'block';
                 return;
             }
@@ -469,7 +518,7 @@
             grid.style.display = 'grid';
             empty.style.display = 'none';
             
-            grid.innerHTML = tools.map(tool => `
+            grid.innerHTML = filteredTools.map(tool => `
                 <div class="tool-card">
                     <div class="tool-header">
                         <div>
@@ -527,10 +576,12 @@
                 document.getElementById('toolCommand').value = tool.command;
                 document.getElementById('toolHealthCheck').value = tool.healthCheckUrl || '';
                 document.getElementById('toolHomeUrl').value = tool.homeUrl || '';
+                document.getElementById('toolHidden').checked = tool.hidden || false;
             } else {
                 title.textContent = '添加工具';
                 form.reset();
                 document.getElementById('toolId').value = '';
+                document.getElementById('toolHidden').checked = false;
             }
             
             modal.classList.add('active');
@@ -679,7 +730,8 @@
                 workDir: document.getElementById('toolWorkDir').value,
                 command: document.getElementById('toolCommand').value,
                 healthCheckUrl: document.getElementById('toolHealthCheck').value,
-                homeUrl: document.getElementById('toolHomeUrl').value
+                homeUrl: document.getElementById('toolHomeUrl').value,
+                hidden: document.getElementById('toolHidden').checked
             };
 
             if (!toolData.name || !toolData.workDir || !toolData.command) {

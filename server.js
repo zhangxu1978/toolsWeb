@@ -75,6 +75,42 @@ app.get('/api/tools/info', async (req, res) => {
     const result = [];
     
     for (const tool of tools) {
+        if (tool.hidden) {
+            continue;
+        }
+        
+        let status = 'stopped';
+        if (runningProcesses[tool.id]) {
+            status = 'running';
+        } else if (tool.healthCheckUrl) {
+            const health = await checkHealth(tool);
+            status = health.status === 'healthy' ? 'running' : 'stopped';
+        }
+        
+        if (status !== 'running') {
+            continue;
+        }
+        
+        const services = (tool.services || []).map(service => ({
+            name: service.name || '',
+            description: service.description || ''
+        }));
+        
+        result.push({
+            toolName: tool.name || '',
+            toolStatus: status,
+            services: services
+        });
+    }
+    
+    res.json(result);
+});
+
+app.get('/api/running-tools', async (req, res) => {
+    const tools = loadTools();
+    const result = [];
+    
+    for (const tool of tools) {
         let status = 'stopped';
         if (runningProcesses[tool.id]) {
             status = 'running';
@@ -113,6 +149,7 @@ app.post('/api/tools', (req, res) => {
         healthCheckUrl: req.body.healthCheckUrl || '',
         homeUrl: req.body.homeUrl || '',
         services: req.body.services || [],
+        hidden: req.body.hidden || false,
         status: 'stopped'
     };
     tools.push(tool);

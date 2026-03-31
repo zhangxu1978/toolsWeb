@@ -13,7 +13,8 @@
         "name": "大模型api接口服务",
         "description": "# Chat Completions API 接口文档\n\n## 概述\n\n`/v1/chat/completions` 是一个兼容 OpenAI Chat Completions 格式的 API 接口，为用户提供统一的 AI 对话服务。\n\n**基础 URL**: `http://127.0.0.1:3099`\n\n---\n\n## 请求说明\n\n### 请求地址\n\n```\nPOST http://127.0.0.1:3099/v1/chat/completions\n```\n\n### 请求头\n\n| 参数 | 值 | 说明 |\n|------|-----|------|\n| Content-Type | application/json | 请求体格式 |\n\n### 请求体参数\n\n| 参数 | 类型 | 必填 | 默认值 | 说明 |\n|------|------|------|--------|------|\n| model | string | 是 | - | 使用的 AI 模型 |\n| messages | array | 是 | - | 消息数组，格式同 OpenAI |\n| temperature | number | 否 | 0.7 | 生成随机性参数 (0-2) |\n| max_tokens | number | 否 | 1024K | 最大生成 token 数 |\n| stream | boolean | 否 | false | 是否使用流式响应 (暂不支持) |\n\n#### messages 数组格式\n\n```json\n[\n  { \"role\": \"system\", \"content\": \"你是一个有帮助的助手\" },\n  { \"role\": \"user\", \"content\": \"你好，请介绍一下自己\" }\n]\n\n## 支持的模型\n\n| 模型标识 | 对应平台 | 说明 |\n|----------|----------|------|\n| deepseek | DeepSeek | DeepSeek  |\n| qwen | Qwen | 阿里云通义千问 |\n| kimi | Kimi | 月之暗面 Kimi |\n| minimax | Minimax | Minimax AI |\n| glm5 | GLM5 | 智谱 GLM-5 |\n\n---\n\n## 响应示例\n\n### 成功响应\n\n```json\n{\n  \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"created\": 1711641600,\n  \"object\": \"chat.completion\",\n  \"model\": \"deepseek\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"你好！我是 DeepSeek AI，很高兴为你服务。我是一个由 DeepSeek 公司开发的 AI 助手...\",\n        \"reasoning_content\": \"\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 20,\n    \"completion_tokens\": 150,\n    \"total_tokens\": 170,\n    \"completion_tokens_details\": {\n      \"reasoning_tokens\": 0\n    }\n  },\n  \"system_fingerprint\": \"\"\n}\n```\n\n### 错误响应\n\n#### 缺少 model 参数 (400)\n\n```json\n{\n  \"success\": false,\n  \"message\": \"请提供 model 参数\"\n}\n```\n\n#### 缺少 messages 参数 (400)\n\n```json\n{\n  \"success\": false,\n  \"message\": \"请提供 messages 数组\"\n}\n```\n\n#### 不支持的模型 (400)\n\n```json\n{\n  \"success\": false,\n  \"message\": \"不支持的模型: xxx，支持的模型: deepseek, qwen, kimi, minimax, glm5\"\n}\n```\n\n#### messages 中无 user 消息 (400)\n\n```json\n{\n  \"success\": false,\n  \"message\": \"messages 中未找到 user 角色的消息\"\n}\n```\n\n#### 服务器内部错误 (500)\n\n```json\n{\n  \"success\": false,\n  \"message\": \"错误信息描述\"\n}\n```\n\n---\n\n## 使用示例\n\n### cURL\n\n```bash\ncurl -X POST http://127.0.0.1:3099/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"model\": \"deepseek\",\n    \"messages\": [\n      { \"role\": \"user\", \"content\": \"用一句话介绍你自己\" }\n    ],\n    \"temperature\": 0.7,\n    \"max_tokens\": 500\n  }'\n```\n\n### JavaScript (Fetch)\n\n```javascript\nconst response = await fetch('http://127.0.0.1:3099/v1/chat/completions', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({\n    model: 'deepseek',\n    messages: [\n      { role: 'user', content: '用一句话介绍你自己' }\n    ],\n    temperature: 0.7,\n    max_tokens: 500\n  })\n});\n\nconst data = await response.json();\nconsole.log(data.choices[0].message.content);\n```\n\n### Python (requests)\n\n```python\nimport requests\n\nresponse = requests.post(\n    'http://127.0.0.1:3099/v1/chat/completions',\n    json={\n        'model': 'deepseek',\n        'messages': [\n            {'role': 'user', 'content': '用一句话介绍你自己'}\n        ],\n        'temperature': 0.7,\n        'max_tokens': 500\n    }\n)\n\ndata = response.json()\nprint(data['choices'][0]['message']['content'])\n```\n\n---\n\n## 注意事项\n\n1. **首次调用延迟**: 首次调用某个模型时，可能需要等待 3-5 秒\n2. **流式响应**: 目前 `stream` 参数暂不支持，请使用默认的非流式响应"
       }
-    ]
+    ],
+    "hidden": true
   },
   {
     "id": "1774702408551",
@@ -63,7 +64,7 @@
   },
   {
     "id": "1774706023544",
-    "name": "数据采集器",
+    "name": "公司数据采集器（龙虾）",
     "type": "other",
     "workDir": "D:\\work\\work\\git\\skills",
     "command": "start.bat",
@@ -76,10 +77,52 @@
     "name": "番茄专用",
     "type": "other",
     "workDir": "D:\\work\\work\\git\\tools\\webagent",
-    "command": "start.bat",
+    "command": "npm start",
     "healthCheckUrl": "http://127.0.0.1:3071",
     "status": "stopped",
     "homeUrl": "http://127.0.0.1:3071/index.html",
     "services": []
+  },
+  {
+    "id": "1774838727032",
+    "name": "树形结构的知识管理工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\bigbro",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3033",
+    "services": [],
+    "status": "stopped"
+  },
+  {
+    "id": "1774840565793",
+    "name": "大模型管理工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\models",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3100",
+    "services": [
+      {
+        "name": "提供ai大模型的api接口说明",
+        "description": "统一代理接口文档\n接口地址\nPOST http://localhost:3100/v1/chat/completions\n指定模型方式\n方式一：请求头（推荐）\n\nX-Model-ID: deepseek-r1\n方式二：URL 参数\n\nPOST /v1/chat/completions?model_id=deepseek-r1\n不传模型ID：默认使用 key.config 中第一个模型（当前为谷歌 Gemini）\n\n请求示例\ncurl -X POST http://localhost:3100/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-Model-ID: deepseek-r1\" \\\n  -d '{\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"你好\"}\n  ],\n  \"max_tokens\": 1000,\n  \"temperature\": 0.7\n}'\n响应格式（OpenAI 兼容）\n{\n  \"id\": \"chatcmpl-1234567890\",\n  \"object\": \"chat.completion\",\n  \"created\": 1712345678,\n  \"model\": \"deepseek-reasoner\",\n  \"choices\": [{\n    \"index\": 0,\n    \"message\": { \"role\": \"assistant\", \"content\": \"你好！有什么可以帮助你的？\" },\n    \"finish_reason\": \"stop\"\n  }],\n  \"usage\": {\n    \"prompt_tokens\": 5,\n    \"completion_tokens\": 12,\n    \"total_tokens\": 17\n  }\n}"
+      },
+      {
+        "name": "可以提供的模型列表",
+        "description": "访问 http://127.0.0.1:3100/api/models/list\n{\"code\":0,\"msg\":\"success\",\"data\":[{\"X-Model-ID\":\"google-ai\",\"name\":\"谷歌AIFlash2.5\"},{\"X-Model-ID\":\"google-ai-thinking\",\"name\":\"谷歌AI推理模型3.1\"},{\"X-Model-ID\":\"deepseek-r1\",\"name\":\"DeepSeekR1\"},{\"X-Model-ID\":\"deepseek-v3\",\"name\":\"DeepSeekV3\"},{\"X-Model-ID\":\"doubao-deepseek-ai\",\"name\":\"火山引擎DeepSeek\"},{\"X-Model-ID\":\"doubao-deepseek-r1-ai\",\"name\":\"火山引擎DeepSeekR1\"},{\"X-Model-ID\":\"deepseek-ai/DeepSeek-R1\",\"name\":\"硅基流动deepseekR1\"},{\"X-Model-ID\":\"deepseek-ai/DeepSeek-V3\",\"name\":\"硅基流动deepseekV3\"},{\"X-Model-ID\":\"baidu-ai\",\"name\":\"百度AI\"},{\"X-Model-ID\":\"aliyun-ai\",\"name\":\"阿里云AI\"},{\"X-Model-ID\":\"glm\",\"name\":\"智普glm\"},{\"X-Model-ID\":\"bendi\",\"name\":\"本地模型\"},{\"X-Model-ID\":\"bendi-copy\",\"name\":\"本地模型glm\"},{\"X-Model-ID\":\"bendi-copy2\",\"name\":\"本地模型 qwen\"},{\"X-Model-ID\":\"bendi-copy3\",\"name\":\"本地模型kimi\"},{\"X-Model-ID\":\"bendi-copy4\",\"name\":\"本地模型 miniMax\"}]}"
+      }
+    ],
+    "status": "stopped"
+  },
+  {
+    "id": "1774941160778",
+    "name": "音频可视化",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\seeSound",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3200",
+    "services": [],
+    "status": "stopped"
   }
 ]
