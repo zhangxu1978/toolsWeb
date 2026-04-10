@@ -34,7 +34,8 @@
     "command": "npm start",
     "healthCheckUrl": "http://localhost:8090/health",
     "status": "stopped",
-    "homeUrl": "http://127.0.0.1:8090"
+    "homeUrl": "http://127.0.0.1:8090",
+    "hidden": true
   },
   {
     "id": "1774703263812",
@@ -44,7 +45,8 @@
     "command": "start_and_open.bat",
     "healthCheckUrl": "",
     "status": "stopped",
-    "homeUrl": "http://127.0.0.1:8080"
+    "homeUrl": "http://127.0.0.1:8080",
+    "hidden": true
   },
   {
     "id": "1774703715043",
@@ -58,7 +60,7 @@
     "services": [
       {
         "name": "音频文件生成字幕接口",
-        "description": "# 音频转字幕接口文档\n\n## 基本信息\n\n| 项目 | 内容 |\n|------|------|\n| 接口地址 | `/api/transcribe` |\n| 请求方法 | `POST` |\n| 认证方式 | 无 |\n| 响应格式 | JSON |\n\n## 支持的音频格式\n\n`.mp3`, `.m4a`, `.aac`, `.wav`, `.flac`, `.ogg`\n\n---\n\n## 调用方式\n\n### 方式一：文件上传（推荐）\n\n直接上传本地音频文件。\n\n**请求示例：**\n\n```bash\ncurl -X POST http://127.0.0.1:5000/api/transcribe \\\n  -F \"file=@你的音频文件.mp3\"\n```\n\n**Python：**\n\n```python\nimport requests\n\nwith open(\"音频文件.mp3\", \"rb\") as f:\n    response = requests.post(\n        \"http://127.0.0.1:5000/api/transcribe\",\n        files={\"file\": f}\n    )\n    print(response.json())\n```\n\n**JavaScript：**\n\n```javascript\nconst formData = new FormData();\nformData.append(\"file\", audioFileBlob);\n\nfetch('http://127.0.0.1:5000/api/transcribe', {\n    method: 'POST',\n    body: formData\n})\n.then(r => r.json())\n.then(console.log);\n```\n\n---\n\n### 方式二：远程 URL\n\n通过远程音频 URL 进行转录，服务端会先下载音频再处理。\n\n**请求示例：**\n\n```bash\ncurl -X POST http://127.0.0.1:5000/api/transcribe \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"url\": \"https://example.com/audio.mp3\", \"name\": \"我的音频\"}'\n```\n\n**参数说明：**\n\n| 参数 | 必填 | 类型 | 说明 |\n|------|------|------|------|\n| url | 是 | string | 远程音频文件的 URL 地址 |\n| name | 否 | string | 自定义音频名称（用于生成字幕文件名），默认取 URL 中的文件名 |\n\n---\n\n### 方式三：本地文件名\n\n使用服务端本地已存在的音频文件（放在 `yinpin` 目录下）。\n\n```bash\ncurl -X POST http://127.0.0.1:5000/api/transcribe \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"audio\": \"音乐山水清音.mp3\"}'\n```\n\n**参数说明：**\n\n| 参数 | 必填 | 类型 | 说明 |\n|------|------|------|------|\n| audio | 是 | string | 音频文件名（需放在项目的 yinpin 目录下）|\n\n---\n\n## 响应结果\n\n### 成功响应\n\n```json\n{\n  \"ok\": true,\n  \"srt_file\": \"output_音频名_20260328_194857.srt\",\n  \"srt_url\": \"/api/output/output_音频名_20260328_194857.srt\",\n  \"text\": \"转录的文本内容...\"\n}\n```\n\n**字段说明：**\n\n| 字段 | 类型 | 说明 |\n|------|------|------|\n| ok | boolean | 是否成功 |\n| srt_file | string | 生成的字幕文件名 |\n| srt_url | string | 字幕文件的访问 URL |\n| text | string | 转录的文本内容 |\n\n### 失败响应\n\n```json\n{\n  \"error\": \"错误信息描述\"\n}\n```\n\n---\n\n## 错误码\n\n| HTTP 状态码 | 说明 |\n|------------|------|\n| 400 | 请求参数错误（未提供文件、URL 无效等）|\n| 404 | 本地音频文件不存在 |\n| 500 | 服务器内部错误（转录失败等）|\n\n---\n\n## 注意事项\n\n1. **处理时间**：音频转录需要一定时间，时长 1 分钟的音频约需 10-30 秒处理\n2. **文件清理**：临时文件会在处理完成后自动清理\n3. **语言支持**：当前仅支持中文语音识别（`language=\"zh\"`）\n4. **模型说明**：使用 Whisper `small` 模型进行转录\n\n---\n\n## 快速开始示例\n\n```python\nimport requests\n\n# 文件上传方式\ndef transcribe_audio_file(file_path):\n    with open(file_path, \"rb\") as f:\n        resp = requests.post(\n            \"http://127.0.0.1:5000/api/transcribe\",\n            files={\"file\": f}\n        )\n    result = resp.json()\n    if result.get(\"ok\"):\n        print(f\"转录成功: {result['text']}\")\n        print(f\"字幕文件: {result['srt_url']}\")\n    else:\n        print(f\"转录失败: {result['error']}\")\n\n# URL 方式\ndef transcribe_audio_url(url, name=\"audio\"):\n    resp = requests.post(\n        \"http://127.0.0.1:5000/api/transcribe\",\n        json={\"url\": url, \"name\": name}\n    )\n    print(resp.json())\n\n# 测试\ntranscribe_audio_file(\"test.mp3\")\n```"
+        "description": "# 音频转字幕接口文档\n\n## 基本信息\n\n| 项目 | 内容 |\n|------|------|\n| 接口地址 | `/api/transcribe` |\n| 请求方法 | `POST` |\n| 认证方式 | 无 |\n| 响应格式 | JSON |\n\n## 支持的音频格式\n\n`.mp3`, `.m4a`, `.aac`, `.wav`, `.flac`, `.ogg`\n\n---\n\n## 调用方式\n\n### 方式一：文件上传（推荐）\n\n直接上传本地音频文件。\n\n**请求示例：**\n\n```bash\ncurl -X POST http://127.0.0.1:5000/api/transcribe \\\n  -F \"file=@你的音频文件.mp3\"\n```\n\n\n---\n\n### 方式二：远程 URL\n\n通过远程音频 URL 进行转录，服务端会先下载音频再处理。\n\n**请求示例：**\n\n```bash\ncurl -X POST http://127.0.0.1:5000/api/transcribe \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"url\": \"https://example.com/audio.mp3\", \"name\": \"我的音频\"}'\n```\n\n**参数说明：**\n\n| 参数 | 必填 | 类型 | 说明 |\n|------|------|------|------|\n| url | 是 | string | 远程音频文件的 URL 地址 |\n| name | 否 | string | 自定义音频名称（用于生成字幕文件名），默认取 URL 中的文件名 |\n\n---\n\n### 方式三：本地文件名\n\n使用服务端本地已存在的音频文件（放在 `yinpin` 目录下）。\n\n```bash\ncurl -X POST http://127.0.0.1:5000/api/transcribe \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"audio\": \"音乐山水清音.mp3\"}'\n```\n\n**参数说明：**\n\n| 参数 | 必填 | 类型 | 说明 |\n|------|------|------|------|\n| audio | 是 | string | 音频文件名（需放在项目的 yinpin 目录下）|\n\n---\n\n## 响应结果\n\n### 成功响应\n\n```json\n{\n  \"ok\": true,\n  \"srt_file\": \"output_音频名_20260328_194857.srt\",\n  \"srt_url\": \"/api/output/output_音频名_20260328_194857.srt\",\n  \"text\": \"转录的文本内容...\"\n}\n```\n\n**字段说明：**\n\n| 字段 | 类型 | 说明 |\n|------|------|------|\n| ok | boolean | 是否成功 |\n| srt_file | string | 生成的字幕文件名 |\n| srt_url | string | 字幕文件的访问 URL |\n| text | string | 转录的文本内容 |\n\n### 失败响应\n\n```json\n{\n  \"error\": \"错误信息描述\"\n}\n```\n\n---\n\n## 错误码\n\n| HTTP 状态码 | 说明 |\n|------------|------|\n| 400 | 请求参数错误（未提供文件、URL 无效等）|\n| 404 | 本地音频文件不存在 |\n| 500 | 服务器内部错误（转录失败等）|\n\n---\n\n## 注意事项\n\n1. **处理时间**：音频转录需要一定时间，时长 1 分钟的音频约需 10-30 秒处理\n2. **文件清理**：临时文件会在处理完成后自动清理\n3. **语言支持**：当前仅支持中文语音识别（`language=\"zh\"`）\n4. **模型说明**：使用 Whisper `small` 模型进行转录"
       }
     ]
   },
@@ -105,11 +107,11 @@
     "services": [
       {
         "name": "提供ai大模型的api接口说明",
-        "description": "统一代理接口文档\n接口地址\nPOST http://localhost:3100/v1/chat/completions\n指定模型方式\n方式一：请求头（推荐）\n\nX-Model-ID: deepseek-r1\n方式二：URL 参数\n\nPOST /v1/chat/completions?model_id=deepseek-r1\n不传模型ID：默认使用 key.config 中第一个模型（当前为谷歌 Gemini）\n\n请求示例\ncurl -X POST http://localhost:3100/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-Model-ID: deepseek-r1\" \\\n  -d '{\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"你好\"}\n  ],\n  \"max_tokens\": 1000,\n  \"temperature\": 0.7\n}'\n响应格式（OpenAI 兼容）\n{\n  \"id\": \"chatcmpl-1234567890\",\n  \"object\": \"chat.completion\",\n  \"created\": 1712345678,\n  \"model\": \"deepseek-reasoner\",\n  \"choices\": [{\n    \"index\": 0,\n    \"message\": { \"role\": \"assistant\", \"content\": \"你好！有什么可以帮助你的？\" },\n    \"finish_reason\": \"stop\"\n  }],\n  \"usage\": {\n    \"prompt_tokens\": 5,\n    \"completion_tokens\": 12,\n    \"total_tokens\": 17\n  }\n}"
+        "description": "统一代理接口文档\n接口地址\nPOST http://localhost:3100/v1/chat/completions\n指定模型方式\n方式一：请求头（推荐）\n优先选择本地模型 bendi\nX-Model-ID: bendi\n方式二：URL 参数\n\nPOST /v1/chat/completions?model_id=deepseek-r1\n不传模型ID：默认使用 key.config 中第一个模型（当前为谷歌 Gemini）\n\n请求示例\ncurl -X POST http://localhost:3100/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-Model-ID: deepseek-r1\" \\\n  -d '{\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"你好\"}\n  ],\n  \"max_tokens\": 1000,\n  \"temperature\": 0.7\n}'\n响应格式（OpenAI 兼容）\n{\n  \"id\": \"chatcmpl-1234567890\",\n  \"object\": \"chat.completion\",\n  \"created\": 1712345678,\n  \"model\": \"deepseek-reasoner\",\n  \"choices\": [{\n    \"index\": 0,\n    \"message\": { \"role\": \"assistant\", \"content\": \"你好！有什么可以帮助你的？\" },\n    \"finish_reason\": \"stop\"\n  }],\n  \"usage\": {\n    \"prompt_tokens\": 5,\n    \"completion_tokens\": 12,\n    \"total_tokens\": 17\n  }\n}"
       },
       {
         "name": "可以提供的模型列表",
-        "description": "访问 http://127.0.0.1:3100/api/models/list\n{\"code\":0,\"msg\":\"success\",\"data\":[{\"X-Model-ID\":\"google-ai\",\"name\":\"谷歌AIFlash2.5\"},{\"X-Model-ID\":\"google-ai-thinking\",\"name\":\"谷歌AI推理模型3.1\"},{\"X-Model-ID\":\"deepseek-r1\",\"name\":\"DeepSeekR1\"},{\"X-Model-ID\":\"deepseek-v3\",\"name\":\"DeepSeekV3\"},{\"X-Model-ID\":\"doubao-deepseek-ai\",\"name\":\"火山引擎DeepSeek\"},{\"X-Model-ID\":\"doubao-deepseek-r1-ai\",\"name\":\"火山引擎DeepSeekR1\"},{\"X-Model-ID\":\"deepseek-ai/DeepSeek-R1\",\"name\":\"硅基流动deepseekR1\"},{\"X-Model-ID\":\"deepseek-ai/DeepSeek-V3\",\"name\":\"硅基流动deepseekV3\"},{\"X-Model-ID\":\"baidu-ai\",\"name\":\"百度AI\"},{\"X-Model-ID\":\"aliyun-ai\",\"name\":\"阿里云AI\"},{\"X-Model-ID\":\"glm\",\"name\":\"智普glm\"},{\"X-Model-ID\":\"bendi\",\"name\":\"本地模型\"},{\"X-Model-ID\":\"bendi-copy\",\"name\":\"本地模型glm\"},{\"X-Model-ID\":\"bendi-copy2\",\"name\":\"本地模型 qwen\"},{\"X-Model-ID\":\"bendi-copy3\",\"name\":\"本地模型kimi\"},{\"X-Model-ID\":\"bendi-copy4\",\"name\":\"本地模型 miniMax\"}]}"
+        "description": "{\"code\":0,\"msg\":\"success\",\"data\":[{\"X-Model-ID\":\"google-ai\",\"name\":\"谷歌AIFlash2.5\"},{\"X-Model-ID\":\"google-ai-thinking\",\"name\":\"谷歌AI推理模型3.1\"},{\"X-Model-ID\":\"deepseek-r1\",\"name\":\"DeepSeekR1\"},{\"X-Model-ID\":\"deepseek-v3\",\"name\":\"DeepSeekV3\"},{\"X-Model-ID\":\"doubao-deepseek-ai\",\"name\":\"火山引擎DeepSeek\"},{\"X-Model-ID\":\"doubao-deepseek-r1-ai\",\"name\":\"火山引擎DeepSeekR1\"},{\"X-Model-ID\":\"deepseek-ai/DeepSeek-R1\",\"name\":\"硅基流动deepseekR1\"},{\"X-Model-ID\":\"deepseek-ai/DeepSeek-V3\",\"name\":\"硅基流动deepseekV3\"},{\"X-Model-ID\":\"baidu-ai\",\"name\":\"百度AI\"},{\"X-Model-ID\":\"aliyun-ai\",\"name\":\"阿里云AI\"},{\"X-Model-ID\":\"glm\",\"name\":\"智普glm\"},{\"X-Model-ID\":\"bendi\",\"name\":\"本地模型\"},{\"X-Model-ID\":\"bendi-copy\",\"name\":\"本地模型glm\"},{\"X-Model-ID\":\"bendi-copy2\",\"name\":\"本地模型 qwen\"},{\"X-Model-ID\":\"bendi-copy3\",\"name\":\"本地模型kimi\"},{\"X-Model-ID\":\"bendi-copy4\",\"name\":\"本地模型 miniMax\"}]}"
       }
     ],
     "status": "stopped"
@@ -123,6 +125,59 @@
     "healthCheckUrl": "",
     "homeUrl": "http://127.0.0.1:3200",
     "services": [],
+    "status": "stopped"
+  },
+  {
+    "id": "1775112629050",
+    "name": "任务执行",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\timer",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3029",
+    "services": [],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1775313158718",
+    "name": "suno音乐制作",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\suno",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3088",
+    "services": [],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1775525850619",
+    "name": "OCR",
+    "type": "python",
+    "workDir": "D:\\work\\work\\git\\tools\\OCR",
+    "command": "python ocr_server.py",
+    "healthCheckUrl": "http://127.0.0.1:5000/health",
+    "homeUrl": "http://127.0.0.1:5000/",
+    "services": [
+      {
+        "name": "OCR服务",
+        "description": "### 接口地址1\nPOST http://127.0.0.1:5000/api/ocr\n\n### 请求参数\n- file : 图片文件 (支持 png, jpg, jpeg, bmp, tiff, webp 格式)\n- 文件大小限制: 16MB\n\n### 接口地址2\nPOST http://127.0.0.1:5000/api/ocr/base64\n### 请求参数\n{\n  \"image\": \"base64编码的图片数据\"\n}\n\n### 返回格式\n\n{\n  \"success\": true,\n  \"data\": {\n    \"filename\": \"20231201_123456_abcdef.jpg\",\n    \"text_count\": 5,\n    \"elapsed_time\": 0.85,\n    \"texts\": [\n      {\n        \"text\": \"识别的文字内容\",\n        \"confidence\": 0.99,\n        \"bbox\": [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]\n      }\n    ]\n  }\n}"
+      }
+    ],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1775541329563",
+    "name": "ASR语音识别",
+    "type": "python",
+    "workDir": "D:\\work\\work\\git\\tools\\ASR\\webapp",
+    "command": "python main.py",
+    "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:8000",
+    "services": [],
+    "hidden": false,
     "status": "stopped"
   }
 ]

@@ -87,9 +87,9 @@ app.get('/api/tools/info', async (req, res) => {
             status = health.status === 'healthy' ? 'running' : 'stopped';
         }
         
-        if (status !== 'running') {
-            continue;
-        }
+        // if (status !== 'running') {
+        //     continue;
+        // }
         
         const services = (tool.services || []).map(service => ({
             name: service.name || '',
@@ -97,6 +97,7 @@ app.get('/api/tools/info', async (req, res) => {
         }));
         
         result.push({
+            toolId: tool.id || '',
             toolName: tool.name || '',
             toolStatus: status,
             services: services
