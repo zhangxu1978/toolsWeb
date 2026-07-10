@@ -242,7 +242,7 @@
             font-size: 18px;
             color: #333;
         }
-
+        .remove-btn,
         .modal-close {
             background: none;
             border: none;
@@ -366,6 +366,82 @@
         .service-actions {
             margin-top: 8px;
         }
+
+        .parameter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+            padding: 8px;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+        .service-method,
+        .api-url-input,
+        .service-name,
+        .parameter-row input,
+        .parameter-row select {
+            padding: 4px 8px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .parameter-row .param-name {
+            width: 100px;
+        }
+
+        .parameter-row .param-type {
+            width: 80px;
+        }
+
+        .parameter-row .param-default {
+            flex: 1;
+        }
+
+        .parameter-row .param-required {
+            width: auto;
+            margin: 0;
+        }
+
+        .parameter-label {
+            font-size: 12px;
+            color: #999;
+            margin-right: 4px;
+        }
+
+        .service-section {
+            border: 1px solid #e4e7ed;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: #fafafa;
+        }
+
+        .service-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #e4e7ed;
+        }
+
+        .service-section-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .api-config {
+            display: grid;
+            grid-template-columns: 1fr 120px;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .api-url-input {
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 <body>
@@ -443,14 +519,14 @@
     </div>
 
     <div id="serviceModal" class="modal-overlay">
-        <div class="modal">
+        <div class="modal" style="width: 700px;">
             <div class="modal-header">
                 <h2>服务接口管理</h2>
                 <button class="modal-close" onclick="closeServiceModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="serviceEditContainer"></div>
-                <button type="button" class="btn btn-sm" onclick="addServiceEditField()" style="margin-top: 8px;">+ 添加服务</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="addServiceEditField()" style="margin-top: 8px;">+ 添加服务</button>
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="closeServiceModal()">取消</button>
@@ -612,11 +688,41 @@
             const tool = tools.find(t => t.id === toolId);
             const container = document.getElementById('serviceEditContainer');
             container.innerHTML = (tool.services || []).map((s, i) => `
-                <div class="service-field" data-index="${i}">
-                    <input type="text" placeholder="服务名称" class="service-name" value="${escapeHtml(s.name || '')}">
+                <div class="service-section" data-index="${i}">
+                    <div class="service-section-header">
+                        <span class="service-section-title">服务 ${i + 1}</span>
+                        <button type="button" class="remove-btn" onclick="removeServiceEditField(${i})">×</button>
+                    </div>
+                    <div class="api-config">
+                        <input type="text" placeholder="服务名称" class="service-name" value="${escapeHtml(s.name || '')}">
+                        <select class="service-method">
+                            <option value="GET" ${(s.method || 'GET').toUpperCase() === 'GET' ? 'selected' : ''}>GET</option>
+                            <option value="POST" ${(s.method || 'GET').toUpperCase() === 'POST' ? 'selected' : ''}>POST</option>
+                        </select>
+                        <input type="text" placeholder="API URL" class="service-api-url api-url-input" value="${escapeHtml(s.apiUrl || '')}">
+                    </div>
                     <input type="hidden" class="service-desc" value="${escapeHtml(s.description || '')}">
-                    <button type="button" class="btn btn-sm" onclick="editServiceDesc(${i})">编辑说明</button>
-                    <button type="button" class="remove-btn" onclick="removeServiceEditField(${i})">×</button>
+                    <button type="button" class="btn btn-sm" onclick="editServiceDesc(${i})" style="margin-bottom: 8px;">编辑说明</button>
+                    <div style="margin-bottom: 8px;">
+                        <span class="parameter-label">参数：</span>
+                        <button type="button" class="btn btn-sm" onclick="addParameter(${i})">+ 添加参数</button>
+                    </div>
+                    <div class="parameters-container" data-service-index="${i}">
+                        ${(s.parameters || []).map((p, j) => `
+                            <div class="parameter-row" data-param-index="${j}">
+                                <input type="text" class="param-name" placeholder="参数名" value="${escapeHtml(p.name || '')}">
+                                <select class="param-type">
+                                    <option value="string" ${p.type === 'string' ? 'selected' : ''}>string</option>
+                                    <option value="number" ${p.type === 'number' ? 'selected' : ''}>number</option>
+                                    <option value="boolean" ${p.type === 'boolean' ? 'selected' : ''}>boolean</option>
+                                    <option value="object" ${p.type === 'object' ? 'selected' : ''}>object</option>
+                                </select>
+                                <input type="text" class="param-default" placeholder="默认值" value="${escapeHtml(p.defaultValue || '')}">
+                                <label><input type="checkbox" class="param-required" ${p.required ? 'checked' : ''}> 必须</label>
+                                <button type="button" class="remove-btn" onclick="removeParameter(${i}, ${j})">×</button>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `).join('');
             document.getElementById('serviceModal').classList.add('active');
@@ -626,15 +732,59 @@
             const container = document.getElementById('serviceEditContainer');
             const index = container.children.length;
             const div = document.createElement('div');
-            div.className = 'service-field';
+            div.className = 'service-section';
             div.dataset.index = index;
             div.innerHTML = `
-                <input type="text" placeholder="服务名称" class="service-name" value="">
+                <div class="service-section-header">
+                    <span class="service-section-title">服务 ${index + 1}</span>
+                    <button type="button" class="remove-btn" onclick="removeServiceEditField(${index})">×</button>
+                </div>
+                <div class="api-config">
+                    <input type="text" placeholder="服务名称" class="service-name" value="">
+                    <select class="service-method">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                    </select>
+                    <input type="text" placeholder="API URL" class="service-api-url api-url-input" value="">
+                </div>
                 <input type="hidden" class="service-desc" value="">
-                <button type="button" class="btn btn-sm" onclick="editServiceDesc(${index})">编辑说明</button>
-                <button type="button" class="remove-btn" onclick="removeServiceEditField(${index})">×</button>
+                <button type="button" class="btn btn-sm" onclick="editServiceDesc(${index})" style="margin-bottom: 8px;">编辑说明</button>
+                <div style="margin-bottom: 8px;">
+                    <span class="parameter-label">参数：</span>
+                    <button type="button" class="btn btn-sm" onclick="addParameter(${index})">+ 添加参数</button>
+                </div>
+                <div class="parameters-container" data-service-index="${index}"></div>
             `;
             container.appendChild(div);
+        }
+
+        function addParameter(serviceIndex) {
+            const container = document.querySelector(`.parameters-container[data-service-index="${serviceIndex}"]`);
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'parameter-row';
+            div.dataset.paramIndex = index;
+            div.innerHTML = `
+                <input type="text" class="param-name" placeholder="参数名" value="">
+                <select class="param-type">
+                    <option value="string">string</option>
+                    <option value="number">number</option>
+                    <option value="boolean">boolean</option>
+                    <option value="object">object</option>
+                </select>
+                <input type="text" class="param-default" placeholder="默认值" value="">
+                <label><input type="checkbox" class="param-required"> 必须</label>
+                <button type="button" class="remove-btn" onclick="removeParameter(${serviceIndex}, ${index})">×</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeParameter(serviceIndex, paramIndex) {
+            const container = document.querySelector(`.parameters-container[data-service-index="${serviceIndex}"]`);
+            const rows = container.querySelectorAll('.parameter-row');
+            if (rows[paramIndex]) {
+                rows[paramIndex].remove();
+            }
         }
 
         function editServiceDesc(index) {
@@ -692,13 +842,31 @@
             if (!currentToolId) return;
             
             const container = document.getElementById('serviceEditContainer');
-            const fields = container.querySelectorAll('.service-field');
+            const sections = container.querySelectorAll('.service-section');
             const services = [];
-            fields.forEach(field => {
-                const name = field.querySelector('.service-name').value.trim();
-                const desc = field.querySelector('.service-desc') ? field.querySelector('.service-desc').value.trim() : '';
+            sections.forEach(section => {
+                const name = section.querySelector('.service-name').value.trim();
+                const desc = section.querySelector('.service-desc') ? section.querySelector('.service-desc').value.trim() : '';
+                const apiUrl = section.querySelector('.service-api-url').value.trim();
+                const method = section.querySelector('.service-method').value;
+                
+                const paramsContainer = section.querySelector('.parameters-container');
+                const paramRows = paramsContainer.querySelectorAll('.parameter-row');
+                const parameters = [];
+                paramRows.forEach(row => {
+                    const paramName = row.querySelector('.param-name').value.trim();
+                    if (paramName) {
+                        parameters.push({
+                            name: paramName,
+                            type: row.querySelector('.param-type').value,
+                            defaultValue: row.querySelector('.param-default').value.trim(),
+                            required: row.querySelector('.param-required').checked
+                        });
+                    }
+                });
+                
                 if (name) {
-                    services.push({ name, description: desc });
+                    services.push({ name, description: desc, apiUrl, method, parameters });
                 }
             });
 

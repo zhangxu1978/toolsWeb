@@ -273,6 +273,152 @@ app.post('/api/tools/:id/restart', async (req, res) => {
     res.json({ success: true, message: '工具已重启' });
 });
 
+app.get('/mcp/tool_list', async (req, res) => {
+    const tools = loadTools();
+    const result = [];
+    
+    for (const tool of tools) {
+        if (tool.hidden) continue;
+        
+        let status = 'stopped';
+        if (runningProcesses[tool.id]) {
+            status = 'running';
+        } else if (tool.healthCheckUrl) {
+            const health = await checkHealth(tool);
+            status = health.status === 'healthy' ? 'running' : 'stopped';
+        }
+        
+        if (status !== 'running') continue;
+        
+        for (const service of (tool.services || [])) {
+            if (!service.apiUrl) continue;
+            
+            const parameters = (service.parameters || []).map(p => ({
+                name: p.name,
+                type: p.type || 'string',
+                required: p.required || false,
+                description: `${p.type || 'string'}${p.required ? ' (必须)' : ''}${p.defaultValue ? ` 默认值: ${p.defaultValue}` : ''}`
+            }));
+            
+            result.push({
+                name: service.name,
+                description: service.description || `${service.name} - ${service.method} ${service.apiUrl}`,
+                api_url: service.apiUrl,
+                method: service.method || 'GET',
+                parameters: parameters
+            });
+        }
+    }
+    
+    res.json({ tools: result });
+});
+
+app.post('/mcp/call_tool', async (req, res) => {
+    const { tool_name, parameters } = req.body;
+    
+    if (!tool_name) {
+        return res.status(400).json({ error: 'tool_name 必填' });
+    }
+    
+    const tools = loadTools();
+    let targetService = null;
+    
+    for (const tool of tools) {
+        if (tool.hidden) continue;
+        
+        for (const service of (tool.services || [])) {
+            if (service.name === tool_name && service.apiUrl) {
+                targetService = service;
+                break;
+            }
+        }
+        if (targetService) break;
+    }
+    
+    if (!targetService) {
+        return res.status(404).json({ error: `工具 "${tool_name}" 未找到或未配置 API` });
+    }
+    
+    try {
+        const method = (targetService.method || 'GET').toUpperCase();
+        const url = new URL(targetService.apiUrl);
+        
+        if (method === 'GET') {
+            const searchParams = new URLSearchParams();
+            (targetService.parameters || []).forEach(p => {
+                const value = parameters ? parameters[p.name] : undefined;
+                if (value !== undefined && value !== null && value !== '') {
+                    searchParams.append(p.name, value);
+                } else if (p.defaultValue && !p.required) {
+                    searchParams.append(p.name, p.defaultValue);
+                }
+            });
+            url.search = searchParams.toString();
+        }
+        
+        const http = url.protocol === 'https:' ? require('https') : require('http');
+        
+        const options = {
+            hostname: url.hostname,
+            port: url.port || (url.protocol === 'https:' ? 443 : 80),
+            path: url.pathname + url.search,
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        const response = await new Promise((resolve, reject) => {
+            const reqHttp = http.request(options, (resHttp) => {
+                let data = '';
+                resHttp.on('data', chunk => { data += chunk; });
+                resHttp.on('end', () => {
+                    try {
+                        resolve({
+                            statusCode: resHttp.statusCode,
+                            headers: resHttp.headers,
+                            body: data ? JSON.parse(data) : {}
+                        });
+                    } catch (e) {
+                        resolve({
+                            statusCode: resHttp.statusCode,
+                            headers: resHttp.headers,
+                            body: data
+                        });
+                    }
+                });
+            });
+            
+            reqHttp.on('error', reject);
+            
+            if (method === 'POST') {
+                const body = {};
+                (targetService.parameters || []).forEach(p => {
+                    const value = parameters ? parameters[p.name] : undefined;
+                    if (value !== undefined && value !== null && value !== '') {
+                        body[p.name] = value;
+                    } else if (p.defaultValue && !p.required) {
+                        body[p.name] = p.defaultValue;
+                    }
+                });
+                reqHttp.write(JSON.stringify(body));
+            }
+            
+            reqHttp.end();
+        });
+        
+        res.json({
+            success: true,
+            result: response.body
+        });
+    } catch (error) {
+        res.json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
 });
