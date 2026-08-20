@@ -1,7 +1,59 @@
 [
   {
+    "id": "1785809106866",
+    "name": "花间辞AI助手",
+    "type": "other",
+    "workDir": "D:\\work\\work\\git\\pm\\agent",
+    "command": "start.cmd;stop.cmd",
+    "healthCheckUrl": "http://localhost:3404/health",
+    "homeUrl": "http://localhost:3404/",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1785117789038",
+    "name": "项目管理工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\pmTool",
+    "command": "npm start",
+    "healthCheckUrl": "http://127.0.0.1:3059/health",
+    "homeUrl": "http://127.0.0.1:3059",
+    "services": [],
+    "hidden": false,
+    "status": "stopped",
+    "autoStart": false
+  },
+  {
+    "id": "1780976316285",
+    "name": "Mock API工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\agentApiTest",
+    "command": "npm start",
+    "healthCheckUrl": "http://127.0.0.1:3421/health",
+    "homeUrl": "http://127.0.0.1:3421",
+    "services": [],
+    "hidden": false,
+    "status": "stopped",
+    "autoStart": true
+  },
+  {
+    "id": "1787191636951",
+    "name": "agentPostMan",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\agentpostman",
+    "command": "npm start",
+    "healthCheckUrl": "http://127.0.0.1:3405 ",
+    "homeUrl": "http://127.0.0.1:3405 ",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
+  },
+  {
     "id": "1774701422193",
-    "name": "大模型api接口本地服务",
+    "name": "本地大模型",
     "type": "npm",
     "workDir": "D:\\work\\work\\git\\tools\\apiweb",
     "command": "npm run dev",
@@ -9,17 +61,82 @@
     "status": "stopped",
     "homeUrl": "http://127.0.0.1:3099",
     "services": [],
-    "hidden": true
+    "hidden": true,
+    "autoStart": false
   },
   {
-    "id": "1774702408551",
-    "name": "文本转语音模型",
-    "type": "other",
-    "workDir": "D:\\BaiduNetdiskDownload\\ChatTTS",
-    "command": "go-webui-mix.bat",
+    "id": "1774840565793",
+    "name": "大模型管理工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\models",
+    "command": "npm start",
     "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3100",
+    "services": [],
+    "status": "stopped"
+  },
+  {
+    "id": "1785462661057",
+    "name": "图床",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\pm\\TmpImgApi",
+    "command": "npm start",
+    "healthCheckUrl": "http://127.0.0.1:3091/health",
+    "homeUrl": "http://127.0.0.1:3091/",
+    "services": [],
+    "hidden": false,
     "status": "stopped",
-    "homeUrl": "http://127.0.0.1:7860/"
+    "autoStart": true
+  },
+  {
+    "id": "1781225020138",
+    "name": "免费生图前端",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\agentimg",
+    "command": "npm run dev",
+    "healthCheckUrl": "http://localhost:3402/health",
+    "homeUrl": "http://localhost:3402",
+    "services": [],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1786593568266",
+    "name": "精灵动画生成工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\Spritesheet-Character-Generator",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "http://localhost:3417",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1782887657075",
+    "name": "声韵",
+    "type": "other",
+    "workDir": "D:\\work\\work\\git\\tools\\agentSound",
+    "command": "start.bat",
+    "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3080",
+    "services": [],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1781224393817",
+    "name": "免费生图模型API",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\agentimg",
+    "command": "npm run server",
+    "healthCheckUrl": "http://127.0.0.1:3401/health",
+    "homeUrl": "http://127.0.0.1:3401/api/models",
+    "services": [],
+    "hidden": false,
+    "status": "stopped",
+    "autoStart": false
   },
   {
     "id": "1774702921653",
@@ -44,38 +161,6 @@
     "hidden": true
   },
   {
-    "id": "1774703715043",
-    "name": "音视频合并工具",
-    "type": "other",
-    "workDir": "D:\\work\\work\\git\\tools\\zuheshipin",
-    "command": "启动.bat",
-    "healthCheckUrl": "",
-    "status": "stopped",
-    "homeUrl": "http://127.0.0.1:5000",
-    "services": []
-  },
-  {
-    "id": "1774706023544",
-    "name": "公司数据采集器（龙虾）",
-    "type": "other",
-    "workDir": "D:\\work\\work\\git\\skills",
-    "command": "start.bat",
-    "healthCheckUrl": "",
-    "status": "stopped",
-    "homeUrl": "http://localhost:5173"
-  },
-  {
-    "id": "1774707074549",
-    "name": "番茄专用",
-    "type": "other",
-    "workDir": "D:\\work\\work\\git\\tools\\webagent",
-    "command": "npm start",
-    "healthCheckUrl": "http://127.0.0.1:3071",
-    "status": "stopped",
-    "homeUrl": "http://127.0.0.1:3071/index.html",
-    "services": []
-  },
-  {
     "id": "1774838727032",
     "name": "树形结构的知识管理工具",
     "type": "npm",
@@ -83,17 +168,6 @@
     "command": "npm start",
     "healthCheckUrl": "",
     "homeUrl": "http://127.0.0.1:3033",
-    "services": [],
-    "status": "stopped"
-  },
-  {
-    "id": "1774840565793",
-    "name": "大模型管理工具",
-    "type": "npm",
-    "workDir": "D:\\work\\work\\git\\tools\\models",
-    "command": "npm start",
-    "healthCheckUrl": "",
-    "homeUrl": "http://127.0.0.1:3100",
     "services": [],
     "status": "stopped"
   },
@@ -128,18 +202,6 @@
     "command": "npm start",
     "healthCheckUrl": "",
     "homeUrl": "http://127.0.0.1:3088",
-    "services": [],
-    "hidden": false,
-    "status": "stopped"
-  },
-  {
-    "id": "1775525850619",
-    "name": "OCR",
-    "type": "python",
-    "workDir": "D:\\work\\work\\git\\tools\\OCR",
-    "command": "python ocr_server.py",
-    "healthCheckUrl": "http://127.0.0.1:5000/health",
-    "homeUrl": "http://127.0.0.1:5000/",
     "services": [],
     "hidden": false,
     "status": "stopped"
@@ -301,42 +363,6 @@
     "status": "stopped"
   },
   {
-    "id": "1780976316285",
-    "name": "api测试工具",
-    "type": "npm",
-    "workDir": "D:\\work\\work\\git\\tools\\agentApiTest",
-    "command": "npm start",
-    "healthCheckUrl": "http://127.0.0.1:3421/health",
-    "homeUrl": "http://127.0.0.1:3421",
-    "services": [],
-    "hidden": false,
-    "status": "stopped"
-  },
-  {
-    "id": "1781224393817",
-    "name": "免费生图模型API",
-    "type": "npm",
-    "workDir": "D:\\work\\work\\git\\tools\\agentimg",
-    "command": "npm run server",
-    "healthCheckUrl": "http://127.0.0.1:3401/health",
-    "homeUrl": "http://127.0.0.1:3401/api/models",
-    "services": [],
-    "hidden": false,
-    "status": "stopped"
-  },
-  {
-    "id": "1781225020138",
-    "name": "免费生图前端",
-    "type": "npm",
-    "workDir": "D:\\work\\work\\git\\tools\\agentimg",
-    "command": "npm run dev",
-    "healthCheckUrl": "http://localhost:3402/health",
-    "homeUrl": "http://localhost:3402",
-    "services": [],
-    "hidden": false,
-    "status": "stopped"
-  },
-  {
     "id": "1781327146343",
     "name": "agent音乐mv制作",
     "type": "npm",
@@ -349,15 +375,28 @@
     "status": "stopped"
   },
   {
-    "id": "1782887657075",
-    "name": "声韵",
-    "type": "other",
-    "workDir": "D:\\work\\work\\git\\tools\\agentSound",
-    "command": "start.bat",
+    "id": "1785136062644",
+    "name": "svg图片生成器",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\work\\agentSVG",
+    "command": "npm start",
     "healthCheckUrl": "",
+    "homeUrl": "http://127.0.0.1:3090",
+    "services": [],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1786667566757",
+    "name": "deepseek harness",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\deepseek\\deepseek-harness",
+    "command": "pnpm dsh web",
+    "healthCheckUrl": "http://127.0.0.1:3080/health",
     "homeUrl": "http://127.0.0.1:3080",
     "services": [],
     "hidden": false,
+    "autoStart": false,
     "status": "stopped"
   }
 ]

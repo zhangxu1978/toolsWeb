@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="chinese">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>工具管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Long+Cang&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -442,6 +443,302 @@
         .api-url-input {
             grid-column: 1 / -1;
         }
+
+        /* ============================================ */
+        /* ============= 国风主题（默认） ============== */
+        /* ============================================ */
+
+        :root, [data-theme="chinese"] {
+            --paper: #f5f1e8;
+            --paper-dark: #ebe3cf;
+            --paper-elev: #f0e9d6;
+            --ink: #2c2c2c;
+            --ink-soft: #4a4a4a;
+            --ink-light: #888888;
+            --rouge: #c94c4c;
+            --rouge-deep: #a53838;
+            --rouge-light: #e08a8a;
+            --indigo: #2e4a62;
+            --indigo-light: #4a6f8f;
+            --gold: #b8923a;
+            --gold-light: #d4b66b;
+            --jade: #6b8e23;
+            --border-classic: #c9bfa4;
+            --shadow-soft: 0 2px 12px rgba(60, 40, 20, 0.08);
+            --font-serif: "Source Han Serif SC", "Noto Serif SC", "SimSun", "STSong", serif;
+            --font-kai: "KaiTi", "STKaiti", "楷体", "华文楷体", serif;
+            --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', Menlo, monospace;
+        }
+
+        [data-theme="chinese"] body {
+            font-family: var(--font-serif);
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 20% 10%, rgba(201, 76, 76, 0.04), transparent 40%),
+                radial-gradient(circle at 80% 90%, rgba(46, 74, 98, 0.05), transparent 45%),
+                repeating-linear-gradient(45deg, rgba(184, 146, 58, 0.02) 0 2px, transparent 2px 16px),
+                var(--paper);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.7;
+        }
+
+        [data-theme="chinese"] .container { max-width: 1200px; margin: 0 auto; }
+        [data-theme="chinese"] .header { margin-bottom: 24px; gap: 16px; }
+        [data-theme="chinese"] .header h1 {
+            font-family: var(--font-kai);
+            font-size: 28px;
+            letter-spacing: 4px;
+            color: var(--ink);
+        }
+        [data-theme="chinese"] .header h1::before {
+            content: "❖ ";
+            color: var(--rouge);
+            margin-right: 4px;
+        }
+
+        [data-theme="chinese"] .theme-toggle {
+            padding: 6px 16px;
+            border: 1px solid var(--border-classic);
+            background: var(--paper-elev);
+            color: var(--ink);
+            font-family: var(--font-kai);
+            letter-spacing: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all .2s;
+        }
+        [data-theme="chinese"] .theme-toggle:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px var(--gold-light);
+        }
+
+        [data-theme="chinese"] .filter-select {
+            border: 1px solid var(--border-classic);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--ink);
+            font-family: var(--font-serif);
+        }
+        [data-theme="chinese"] .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212, 182, 107, 0.15);
+        }
+
+        [data-theme="chinese"] .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 18px;
+        }
+
+        [data-theme="chinese"] .tool-card {
+            background: var(--paper-elev);
+            border: 1px solid var(--border-classic);
+            border-radius: 10px;
+            box-shadow: var(--shadow-soft);
+            padding: 22px 20px 20px 28px;
+            position: relative;
+            transition: transform .25s, box-shadow .25s, border-color .2s;
+            cursor: grab;
+        }
+        [data-theme="chinese"] .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(60, 40, 20, .12);
+        }
+        [data-theme="chinese"] .tool-card.dragging { opacity: .35; cursor: grabbing; }
+        [data-theme="chinese"] .tool-card.drag-over {
+            border-color: var(--rouge);
+            box-shadow: 0 0 0 2px var(--rouge-light);
+        }
+        [data-theme="chinese"] .tool-card::before {
+            content: '';
+            position: absolute; top: 8px; right: 8px;
+            width: 14px; height: 14px;
+            border-top: 1px solid var(--gold);
+            border-right: 1px solid var(--gold);
+        }
+        [data-theme="chinese"] .tool-card::after {
+            content: '';
+            position: absolute; bottom: 8px; left: 8px;
+            width: 14px; height: 14px;
+            border-bottom: 1px solid var(--gold);
+            border-left: 1px solid var(--gold);
+        }
+        [data-theme="chinese"] .drag-handle {
+            position: absolute; top: 12px; left: 8px;
+            color: var(--gold);
+            font-size: 14px;
+            opacity: .7;
+            user-select: none;
+            cursor: grab;
+        }
+        [data-theme="chinese"] .tool-header { margin-bottom: 14px; align-items: center; }
+        [data-theme="chinese"] .tool-name {
+            font-family: var(--font-kai);
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: var(--ink);
+        }
+        [data-theme="chinese"] .tool-type {
+            background: rgba(184, 146, 58, 0.12);
+            color: var(--gold);
+            border: 1px solid var(--gold-light);
+            border-radius: 4px;
+            font-family: var(--font-kai);
+            letter-spacing: 1px;
+            padding: 2px 10px;
+        }
+        [data-theme="chinese"] .tool-info label { color: var(--ink-light); }
+        [data-theme="chinese"] .tool-info p { color: var(--ink-soft); }
+
+        [data-theme="chinese"] .status-running {
+            background: rgba(107, 142, 35, 0.12);
+            color: var(--jade);
+            border: 1px solid var(--jade);
+        }
+        [data-theme="chinese"] .status-stopped {
+            background: rgba(136, 136, 136, 0.10);
+            color: var(--ink-light);
+            border: 1px solid var(--border-classic);
+        }
+        [data-theme="chinese"] .status-healthy {
+            background: rgba(107, 142, 35, 0.12);
+            color: var(--jade);
+            border: 1px solid var(--jade);
+        }
+        [data-theme="chinese"] .status-unhealthy {
+            background: rgba(201, 76, 76, 0.10);
+            color: var(--rouge);
+            border: 1px solid var(--rouge-light);
+        }
+
+        [data-theme="chinese"] .btn {
+            padding: 7px 16px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid var(--border-classic);
+            color: var(--ink);
+            font-family: var(--font-serif);
+            letter-spacing: 1px;
+            transition: all .15s;
+        }
+        [data-theme="chinese"] .btn:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px var(--gold-light);
+        }
+        [data-theme="chinese"] .btn-primary {
+            background: linear-gradient(180deg, var(--rouge), var(--rouge-deep));
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        [data-theme="chinese"] .btn-primary:hover {
+            filter: brightness(1.08);
+            box-shadow: 0 0 0 2px rgba(201, 76, 76, .2);
+        }
+        [data-theme="chinese"] .btn-success {
+            background: var(--jade);
+            color: #fff;
+            border: none;
+            letter-spacing: 1.5px;
+        }
+        [data-theme="chinese"] .btn-warning {
+            background: #d2691e;
+            color: #fff;
+            border: none;
+        }
+        [data-theme="chinese"] .btn-danger {
+            background: #fff;
+            color: var(--rouge);
+            border-color: var(--rouge-light);
+        }
+        [data-theme="chinese"] .btn-danger:hover {
+            border-color: var(--rouge);
+            box-shadow: 0 0 0 1px var(--rouge-light);
+        }
+
+        [data-theme="chinese"] .modal-overlay {
+            background: rgba(60, 40, 20, .45);
+        }
+        [data-theme="chinese"] .modal {
+            background: var(--paper-elev);
+            border: 2px double var(--border-classic);
+            border-radius: 8px;
+        }
+        [data-theme="chinese"] .modal-header {
+            border-bottom: 1px dashed var(--border-classic);
+        }
+        [data-theme="chinese"] .modal-header h2 {
+            font-family: var(--font-kai);
+            letter-spacing: 2px;
+            color: var(--ink);
+        }
+        [data-theme="chinese"] .modal-footer {
+            border-top: 1px dashed var(--border-classic);
+        }
+        [data-theme="chinese"] .form-group label { color: var(--ink); }
+        [data-theme="chinese"] .form-group input,
+        [data-theme="chinese"] .form-group select,
+        [data-theme="chinese"] .service-field input,
+        [data-theme="chinese"] .parameter-row input,
+        [data-theme="chinese"] .parameter-row select,
+        [data-theme="chinese"] .service-method,
+        [data-theme="chinese"] .service-name,
+        [data-theme="chinese"] .api-url-input {
+            border: 1px solid var(--border-classic);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--ink);
+            font-family: var(--font-serif);
+        }
+        [data-theme="chinese"] .form-group input:focus,
+        [data-theme="chinese"] .form-group select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212, 182, 107, 0.15);
+        }
+        [data-theme="chinese"] .service-item {
+            background: rgba(245, 241, 232, 0.6);
+            border: 1px solid var(--border-classic);
+        }
+        [data-theme="chinese"] .service-section {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-classic);
+        }
+        [data-theme="chinese"] .parameter-row {
+            background: rgba(245, 241, 232, 0.5);
+        }
+        [data-theme="chinese"] .service-item a,
+        [data-theme="chinese"] .tool-info a {
+            color: var(--indigo);
+        }
+        [data-theme="chinese"] .service-item a:hover,
+        [data-theme="chinese"] .tool-info a:hover {
+            color: var(--rouge);
+        }
+
+        /* ============================================ */
+        /* ============= 现代主题（次选） ============== */
+        /* ============================================ */
+
+        [data-theme="modern"] .tool-card { cursor: grab; }
+        [data-theme="modern"] .tool-card.dragging { opacity: .35; }
+        [data-theme="modern"] .tool-card.drag-over {
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, .25);
+        }
+        [data-theme="modern"] .theme-toggle {
+            padding: 8px 12px;
+            border: 1px solid #dcdfe6;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        [data-theme="modern"] .theme-toggle:hover { border-color: #409eff; color: #409eff; }
     </style>
 </head>
 <body>
@@ -449,6 +746,7 @@
         <div class="header">
             <h1>工具管理</h1>
             <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">❖ 国风</button>
                 <select id="statusFilter" class="filter-select" onchange="filterTools()">
                     <option value="all">全部</option>
                     <option value="running">运行中</option>
@@ -493,7 +791,8 @@
                     </div>
                     <div class="form-group">
                         <label>启动命令</label>
-                        <input type="text" id="toolCommand" required placeholder="例如: npm run dev">
+                        <input type="text" id="toolCommand" required placeholder="例如: npm run dev  或  java -jar app.jar ; taskkill /im java.exe">
+                        <small style="color: #888;">其他类型可用 ; 分隔，前面是启动命令，后面是停止命令</small>
                     </div>
                     <div class="form-group">
                         <label>健康检查 URL（可选）</label>
@@ -507,6 +806,12 @@
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <input type="checkbox" id="toolHidden" style="width: auto;">
                             隐藏（运行中工具接口将不显示此工具）
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="toolAutoStart" style="width: auto;">
+                            自动启动（系统启动后自动启动此工具）
                         </label>
                     </div>
                 </form>
@@ -595,7 +900,11 @@
             empty.style.display = 'none';
             
             grid.innerHTML = filteredTools.map(tool => `
-                <div class="tool-card">
+                <div class="tool-card" draggable="true" data-id="${tool.id}"
+                     ondragstart="onDragStart(event)" ondragover="onDragOver(event)"
+                     ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)"
+                     ondrop="onDrop(event)" ondragend="onDragEnd(event)">
+                    <span class="drag-handle" title="拖动以排序">⠿</span>
                     <div class="tool-header">
                         <div>
                             <span class="tool-name">${tool.name}</span>
@@ -653,11 +962,13 @@
                 document.getElementById('toolHealthCheck').value = tool.healthCheckUrl || '';
                 document.getElementById('toolHomeUrl').value = tool.homeUrl || '';
                 document.getElementById('toolHidden').checked = tool.hidden || false;
+                document.getElementById('toolAutoStart').checked = tool.autoStart || false;
             } else {
                 title.textContent = '添加工具';
                 form.reset();
                 document.getElementById('toolId').value = '';
                 document.getElementById('toolHidden').checked = false;
+                document.getElementById('toolAutoStart').checked = false;
             }
             
             modal.classList.add('active');
@@ -899,7 +1210,8 @@
                 command: document.getElementById('toolCommand').value,
                 healthCheckUrl: document.getElementById('toolHealthCheck').value,
                 homeUrl: document.getElementById('toolHomeUrl').value,
-                hidden: document.getElementById('toolHidden').checked
+                hidden: document.getElementById('toolHidden').checked,
+                autoStart: document.getElementById('toolAutoStart').checked
             };
 
             if (!toolData.name || !toolData.workDir || !toolData.command) {
@@ -996,6 +1308,87 @@
         setInterval(loadTools, 5000);
 
         loadTools();
+
+        /* ============ 主题切换 ============ */
+        function applyTheme(theme) {
+            document.documentElement.dataset.theme = theme;
+            const btn = document.querySelector('.theme-toggle');
+            if (btn) {
+                btn.textContent = theme === 'chinese' ? '❖ 国风' : '◇ 现代';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.dataset.theme || 'chinese';
+            const next = current === 'chinese' ? 'modern' : 'chinese';
+            applyTheme(next);
+            try { localStorage.setItem('toolsWeb:theme', next); } catch (e) { /* localStorage 不可用时忽略 */ }
+        }
+
+        (function restoreTheme() {
+            let saved = null;
+            try { saved = localStorage.getItem('toolsWeb:theme'); } catch (e) {}
+            if (saved === 'chinese' || saved === 'modern') {
+                applyTheme(saved);
+            }
+        })();
+
+        /* ============ 拖拽排序 ============ */
+        let dragSourceId = null;
+
+        function onDragStart(e) {
+            const card = e.currentTarget;
+            dragSourceId = card.dataset.id;
+            card.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            try { e.dataTransfer.setData('text/plain', dragSourceId); } catch (err) { /* 部分浏览器异常 */ }
+        }
+
+        function onDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function onDragEnter(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function onDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function onDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const targetId = e.currentTarget.dataset.id;
+            if (!dragSourceId || dragSourceId === targetId) return;
+            const fromIdx = tools.findIndex(t => t.id === dragSourceId);
+            const toIdx   = tools.findIndex(t => t.id === targetId);
+            if (fromIdx < 0 || toIdx < 0) return;
+            const [moved] = tools.splice(fromIdx, 1);
+            tools.splice(toIdx, 0, moved);
+            renderTools();
+            persistOrder();
+        }
+
+        function onDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.tool-card.drag-over').forEach(el => el.classList.remove('drag-over'));
+            dragSourceId = null;
+        }
+
+        async function persistOrder() {
+            try {
+                await fetch('/api/tools/reorder', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order: tools.map(t => t.id) })
+                });
+            } catch (err) {
+                console.error('保存顺序失败', err);
+            }
+        }
     </script>
 </body>
 </html>

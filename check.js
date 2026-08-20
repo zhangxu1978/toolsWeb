@@ -1,0 +1,11 @@
+const fs = require('fs');
+const a = fs.readFileSync('tools.json', 'utf-8');
+const b = fs.readFileSync('tools.json.bak', 'utf-8');
+console.log('current == backup:', a === b);
+console.log('current length:', a.length);
+console.log('backup length:', b.length);
+const re = /"autoStart":\s*(true|false)/g;
+const am = a.match(re) || [];
+const bm = b.match(re) || [];
+console.log('current autoStart values:', am);
+console.log('backup autoStart values:', bm);

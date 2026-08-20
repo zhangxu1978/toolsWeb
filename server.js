@@ -27,6 +27,44 @@ function saveTools(tools) {
 
 const runningProcesses = {};
 
+function startToolProcess(tool) {
+    const isWindows = process.platform === 'win32';
+    const shell = isWindows ? 'cmd.exe' : '/bin/sh';
+
+    // 按 ";" 拆分：前半是启动命令，后半是停止命令（可选）
+    const parts = String(tool.command || '').split(';');
+    const startCmd = (parts[0] || '').trim();
+    const stopCmd = parts.slice(1).join(';').trim();
+
+    console.log(`[start] id=${tool.id} type=${tool.type} startCmd="${startCmd}" stopCmd="${stopCmd}"`);
+
+    const shellArgs = isWindows ? ['/c', startCmd] : ['-c', startCmd];
+
+    const proc = spawn(shell, shellArgs, {
+        cwd: tool.workDir,
+        detached: !isWindows,
+        stdio: 'ignore'
+    });
+
+    proc.unref();
+    runningProcesses[tool.id] = { proc, type: tool.type, stopCmd };
+
+    proc.on('exit', (code) => {
+        console.log(`[exit] id=${tool.id} code=${code} type=${tool.type} stopCmd="${stopCmd}"`);
+        // 注意：other 类型的工具即使进程退出，仍保留 stopCmd，以便点击停止时执行关闭脚本
+        if (runningProcesses[tool.id] && runningProcesses[tool.id].proc === proc) {
+            if (tool.type === 'other' && stopCmd) {
+                runningProcesses[tool.id].proc = null;
+                console.log(`[exit] id=${tool.id} 保留 entry，等待 stopCmd`);
+            } else {
+                delete runningProcesses[tool.id];
+            }
+        }
+    });
+
+    return proc;
+}
+
 function checkHealth(tool) {
     return new Promise((resolve) => {
         if (!tool.healthCheckUrl) {
@@ -59,6 +97,7 @@ app.get('/api/tools', async (req, res) => {
     for (const tool of tools) {
         if (runningProcesses[tool.id]) {
             tool.status = 'running';
+            tool.hasStopCmd = !!runningProcesses[tool.id].stopCmd;
         } else if (tool.healthCheckUrl) {
             const health = await checkHealth(tool);
             tool.health = health;
@@ -151,11 +190,32 @@ app.post('/api/tools', (req, res) => {
         homeUrl: req.body.homeUrl || '',
         services: req.body.services || [],
         hidden: req.body.hidden || false,
+        autoStart: req.body.autoStart || false,
         status: 'stopped'
     };
     tools.push(tool);
     saveTools(tools);
     res.json(tool);
+});
+
+app.put('/api/tools/reorder', (req, res) => {
+    const order = req.body.order;
+    if (!Array.isArray(order)) {
+        return res.status(400).json({ error: 'order 必填为数组' });
+    }
+    const tools = loadTools();
+    const map = new Map(tools.map(t => [t.id, t]));
+    const next = [];
+    order.forEach(id => {
+        if (map.has(id)) {
+            next.push(map.get(id));
+            map.delete(id);
+        }
+    });
+    // 兜底：把遗漏的（如被删过）追加到末尾
+    for (const t of map.values()) next.push(t);
+    saveTools(next);
+    res.json({ success: true });
 });
 
 app.put('/api/tools/:id', (req, res) => {
@@ -172,8 +232,8 @@ app.put('/api/tools/:id', (req, res) => {
 app.delete('/api/tools/:id', (req, res) => {
     let tools = loadTools();
     const tool = tools.find(t => t.id === req.params.id);
-    if (tool && runningProcesses[tool.id]) {
-        runningProcesses[tool.id].kill();
+    if (tool && runningProcesses[tool.id] && runningProcesses[tool.id].proc) {
+        runningProcesses[tool.id].proc.kill();
         delete runningProcesses[tool.id];
     }
     tools = tools.filter(t => t.id !== req.params.id);
@@ -187,39 +247,64 @@ app.post('/api/tools/:id/start', (req, res) => {
     if (!tool) {
         return res.status(404).json({ error: '工具未找到' });
     }
-    if (runningProcesses[tool.id]) {
+    if (runningProcesses[tool.id] && runningProcesses[tool.id].proc) {
         return res.status(400).json({ error: '工具已在运行' });
     }
-
-    const isWindows = process.platform === 'win32';
-    const shell = isWindows ? 'cmd.exe' : '/bin/sh';
-    const shellArgs = isWindows ? ['/c', tool.command] : ['-c', tool.command];
-
-    const proc = spawn(shell, shellArgs, {
-        cwd: tool.workDir,
-        detached: !isWindows,
-        stdio: 'ignore'
-    });
-
-    proc.unref();
-    runningProcesses[tool.id] = proc;
-
-    proc.on('exit', (code) => {
+    // other 类型：若 entry 还在但 proc 已退出（等待执行 stopCmd），允许重新启动
+    if (runningProcesses[tool.id]) {
         delete runningProcesses[tool.id];
-    });
+    }
 
+    startToolProcess(tool);
     res.json({ success: true, message: '工具已启动' });
 });
 
 app.post('/api/tools/:id/stop', (req, res) => {
     const toolId = req.params.id;
-    if (!runningProcesses[toolId]) {
+    const entry = runningProcesses[toolId];
+    const isWindows = process.platform === 'win32';
+
+    // 查一次工具配置，拿到 type（应对进程已退出但 entry 仍在的场景）
+    const tools = loadTools();
+    const tool = tools.find(t => t.id === toolId);
+
+    console.log(`[stop] id=${toolId} hasEntry=${!!entry} entryType=${entry && entry.type} entryStopCmd="${entry && entry.stopCmd}"`);
+
+    if (!entry) {
         return res.status(400).json({ error: '工具未在运行' });
     }
-    
-    const isWindows = process.platform === 'win32';
+
+    const toolType = entry.type || (tool && tool.type);
+    const stopCmd = entry.stopCmd;
+
+    // other 类型：依赖用户配置的停止命令
+    if (toolType === 'other') {
+        if (!stopCmd) {
+            delete runningProcesses[toolId];
+            return res.status(400).json({ error: '该工具未配置停止命令，请先在启动命令后用 ; 分隔填写停止命令' });
+        }
+        const shell = isWindows ? 'cmd.exe' : '/bin/sh';
+        const shellArgs = isWindows ? ['/c', stopCmd] : ['-c', stopCmd];
+        console.log(`[stop] other 类型 执行停止命令: ${stopCmd} cwd=${tool && tool.workDir}`);
+        const stopProc = spawn(shell, shellArgs, {
+            cwd: tool ? tool.workDir : undefined,
+            detached: !isWindows,
+            stdio: 'ignore'
+        });
+        stopProc.unref();
+        delete runningProcesses[toolId];
+        return res.json({ success: true, message: '工具已停止' });
+    }
+
+    // npm 等其他类型：必须进程还在才能 taskkill
+    const proc = entry.proc;
+    if (!proc) {
+        delete runningProcesses[toolId];
+        return res.status(400).json({ error: '工具未在运行' });
+    }
+
     if (isWindows) {
-        exec(`taskkill /pid ${runningProcesses[toolId].pid} /T /F`, (err) => {
+        exec(`taskkill /pid ${proc.pid} /T /F`, (err) => {
             if (err) {
                 return res.status(500).json({ error: '停止进程失败' });
             }
@@ -227,7 +312,7 @@ app.post('/api/tools/:id/stop', (req, res) => {
             res.json({ success: true, message: '工具已停止' });
         });
     } else {
-        runningProcesses[toolId].kill('SIGTERM');
+        proc.kill('SIGTERM');
         delete runningProcesses[toolId];
         res.json({ success: true, message: '工具已停止' });
     }
@@ -235,41 +320,26 @@ app.post('/api/tools/:id/stop', (req, res) => {
 
 app.post('/api/tools/:id/restart', async (req, res) => {
     const toolId = req.params.id;
-    if (runningProcesses[toolId]) {
+    const entry = runningProcesses[toolId];
+    if (entry && entry.proc) {
         const isWindows = process.platform === 'win32';
         if (isWindows) {
-            exec(`taskkill /pid ${runningProcesses[toolId].pid} /T /F`);
+            exec(`taskkill /pid ${entry.proc.pid} /T /F`);
         } else {
-            runningProcesses[toolId].kill('SIGTERM');
+            entry.proc.kill('SIGTERM');
         }
         delete runningProcesses[toolId];
     }
-    
+
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     const tools = loadTools();
     const tool = tools.find(t => t.id === toolId);
     if (!tool) {
         return res.status(404).json({ error: '工具未找到' });
     }
 
-    const isWindows = process.platform === 'win32';
-    const shell = isWindows ? 'cmd.exe' : '/bin/sh';
-    const shellArgs = isWindows ? ['/c', tool.command] : ['-c', tool.command];
-
-    const proc = spawn(shell, shellArgs, {
-        cwd: tool.workDir,
-        detached: !isWindows,
-        stdio: 'ignore'
-    });
-
-    proc.unref();
-    runningProcesses[toolId] = proc;
-
-    proc.on('exit', () => {
-        delete runningProcesses[toolId];
-    });
-
+    startToolProcess(tool);
     res.json({ success: true, message: '工具已重启' });
 });
 
@@ -421,4 +491,24 @@ app.post('/mcp/call_tool', async (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`服务器运行在 http://0.0.0.0:${PORT}`);
+
+    // 系统启动后，自动启动标记为 autoStart 的工具
+    const tools = loadTools();
+    const autoStartTools = tools.filter(t => t.autoStart);
+    if (autoStartTools.length > 0) {
+        console.log(`正在自动启动 ${autoStartTools.length} 个工具...`);
+        // 错开启动，避免端口冲突
+        autoStartTools.forEach((tool, index) => {
+            setTimeout(() => {
+                try {
+                    if (!runningProcesses[tool.id] || !runningProcesses[tool.id].proc) {
+                        startToolProcess(tool);
+                        console.log(`已自动启动: ${tool.name}`);
+                    }
+                } catch (err) {
+                    console.error(`自动启动失败 ${tool.name}:`, err.message);
+                }
+            }, index * 1500);
+        });
+    }
 });
