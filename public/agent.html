@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 助手 - 工具管家</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #f5f1e8;
+            --paper-dark: #ebe3cf;
+            --paper-elev: #f0e9d6;
+            --ink: #2c2c2c;
+            --ink-light: #6a6353;
+            --rouge: #c94c4c;
+            --rouge-light: #d98a8a;
+            --indigo: #2e4a62;
+            --gold: #b8923a;
+            --gold-light: #d4b66b;
+            --jade: #6b8e23;
+            --border-classic: #c9bfa4;
+            --font-kai: "KaiTi", "STKaiti", "楷体", "华文楷体", serif;
+            --font-title: "Ma Shan Zheng", "KaiTi", serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-kai);
+            background: var(--paper);
+            background-image: radial-gradient(circle at 20% 10%, rgba(184, 146, 58, .05) 0, transparent 40%),
+                              radial-gradient(circle at 85% 90%, rgba(201, 76, 76, .04) 0, transparent 40%);
+            color: var(--ink);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 24px;
+            background: var(--paper-elev);
+            border-bottom: 2px double var(--border-classic);
+            flex-shrink: 0;
+        }
+        .header h1 {
+            font-family: var(--font-title);
+            font-size: 26px;
+            letter-spacing: 3px;
+            color: var(--rouge);
+            font-weight: normal;
+        }
+        .header .sub { font-size: 13px; color: var(--ink-light); margin-left: 12px; letter-spacing: 1px; }
+        .back-link {
+            font-size: 14px;
+            color: var(--indigo);
+            text-decoration: none;
+            padding: 7px 14px;
+            border: 1px solid var(--border-classic);
+            border-radius: 6px;
+            background: #fff;
+            letter-spacing: 1px;
+            transition: all .15s;
+        }
+        .back-link:hover { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold-light); }
+
+        .layout { flex: 1; display: flex; min-height: 0; }
+
+        /* ============ 左侧历史栏 ============ */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: var(--paper-elev);
+            border-right: 1px solid var(--border-classic);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .sidebar-top { padding: 14px; border-bottom: 1px dashed var(--border-classic); }
+        .sidebar-top label { display: block; font-size: 12px; color: var(--ink-light); margin-bottom: 6px; letter-spacing: 1px; }
+        .sidebar-top select {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid var(--border-classic);
+            border-radius: 6px;
+            background: #fff;
+            font-family: var(--font-kai);
+            font-size: 14px;
+            color: var(--ink);
+        }
+        .sidebar-top select:focus { outline: none; border-color: var(--gold); }
+        .new-chat-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 9px 0;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(180deg, var(--rouge), #a83c3c);
+            color: #fff;
+            font-family: var(--font-kai);
+            font-size: 15px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: filter .15s;
+        }
+        .new-chat-btn:hover { filter: brightness(1.08); }
+        .session-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .session-list::-webkit-scrollbar { width: 6px; }
+        .session-list::-webkit-scrollbar-thumb { background: var(--border-classic); border-radius: 3px; }
+        .session-item {
+            padding: 10px 12px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 6px;
+            transition: all .15s;
+        }
+        .session-item:hover { background: rgba(245, 241, 232, .8); border-color: var(--border-classic); }
+        .session-item.active { background: #fff; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold-light); }
+        .session-item .preview {
+            font-size: 14px;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .session-item .meta { font-size: 12px; color: var(--ink-light); margin-top: 4px; }
+        .session-empty { text-align: center; color: var(--ink-light); font-size: 13px; padding: 30px 10px; letter-spacing: 1px; }
+
+        /* ============ 右侧聊天区 ============ */
+        .chat-area { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+        .readonly-banner {
+            display: none;
+            padding: 8px 20px;
+            background: rgba(184, 146, 58, .12);
+            border-bottom: 1px solid var(--gold-light);
+            color: var(--gold);
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .readonly-banner.show { display: block; }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+        }
+        .messages::-webkit-scrollbar { width: 6px; }
+        .messages::-webkit-scrollbar-thumb { background: var(--border-classic); border-radius: 3px; }
+
+        .msg { display: flex; margin-bottom: 18px; }
+        .msg.user { justify-content: flex-end; }
+        .msg .bubble {
+            max-width: 72%;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.7;
+            word-break: break-word;
+            letter-spacing: .5px;
+        }
+        .msg.user .bubble {
+            background: linear-gradient(180deg, var(--rouge), #b54545);
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+        .msg.assistant .bubble {
+            background: var(--paper-elev);
+            border: 1px solid var(--border-classic);
+            border-bottom-left-radius: 2px;
+        }
+        .msg .time { display: block; font-size: 11px; color: var(--ink-light); margin-top: 6px; text-align: right; }
+        .msg.assistant .time { color: rgba(106, 99, 83, .8); }
+        .msg.user .time { color: rgba(255, 255, 255, .75); }
+
+        .tool-chips { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .tool-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-family: "ZCOOL XiaoWei", var(--font-kai);
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: rgba(46, 74, 98, .08);
+            border: 1px solid rgba(46, 74, 98, .2);
+            color: var(--indigo);
+            width: fit-content;
+        }
+        .tool-chip.ok { background: rgba(107, 142, 35, .1); border-color: rgba(107, 142, 35, .3); color: var(--jade); }
+        .tool-chip.fail { background: rgba(201, 76, 76, .08); border-color: rgba(201, 76, 76, .3); color: var(--rouge); }
+        .tool-chip .icon { font-size: 11px; }
+
+        .thinking { color: var(--ink-light); font-size: 14px; letter-spacing: 2px; }
+        .thinking::after { content: '…'; animation: dots 1.2s steps(4) infinite; }
+        @keyframes dots { 0% { content: ''; } 25% { content: '·'; } 50% { content: '··'; } 75% { content: '···'; } }
+
+        .welcome { text-align: center; color: var(--ink-light); padding-top: 12vh; }
+        .welcome .big { font-family: var(--font-title); font-size: 34px; color: var(--indigo); letter-spacing: 6px; }
+        .welcome .tip { font-size: 14px; margin-top: 14px; letter-spacing: 1px; line-height: 2; }
+
+        /* ============ 输入区 ============ */
+        .input-area {
+            flex-shrink: 0;
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            background: var(--paper-elev);
+            border-top: 1px solid var(--border-classic);
+        }
+        .input-area textarea {
+            flex: 1;
+            resize: none;
+            height: 64px;
+            padding: 10px 14px;
+            border: 1px solid var(--border-classic);
+            border-radius: 8px;
+            background: #fff;
+            font-family: var(--font-kai);
+            font-size: 15px;
+            color: var(--ink);
+            line-height: 1.6;
+        }
+        .input-area textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212, 182, 107, .15); }
+        .input-area textarea:disabled { background: var(--paper-dark); color: var(--ink-light); }
+        .send-btn {
+            width: 92px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(180deg, var(--rouge), var(--rouge-deep, #a83c3c));
+            color: #fff;
+            font-family: var(--font-kai);
+            font-size: 16px;
+            letter-spacing: 4px;
+            cursor: pointer;
+            transition: filter .15s;
+        }
+        .send-btn:hover:not(:disabled) { filter: brightness(1.08); }
+        .send-btn:disabled { background: var(--border-classic); cursor: not-allowed; }
+        .input-hint { font-size: 11px; color: var(--ink-light); text-align: right; margin-top: 4px; padding-right: 2px; }
+
+        @media (max-width: 720px) {
+            .sidebar { display: none; }
+            .msg .bubble { max-width: 88%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div style="display:flex; align-items:baseline;">
+            <h1>百宝箱 · AI 助手</h1>
+            <span class="sub">工具管家：查看 / 启动 / 停止 / 重启 / 编辑</span>
+        </div>
+        <a class="back-link" href="/index.html">← 返回工具管理</a>
+    </div>
+
+    <div class="layout">
+        <div class="sidebar">
+            <div class="sidebar-top">
+                <label>对话历史（按天）</label>
+                <select id="dateSelect" onchange="onDateChange()"></select>
+                <button class="new-chat-btn" onclick="newSession()">＋ 新 对 话</button>
+            </div>
+            <div class="session-list" id="sessionList"></div>
+        </div>
+
+        <div class="chat-area">
+            <div class="readonly-banner" id="readonlyBanner">正在浏览历史会话（只读），点击"新对话"可开始新的交流</div>
+            <div class="messages" id="messages"></div>
+            <div class="input-area">
+                <div style="flex:1; display:flex; flex-direction:column;">
+                    <textarea id="input" placeholder="向 AI 助手下达指令，例如：启动项目管理工具"></textarea>
+                    <div class="input-hint">Enter 发送 · Shift+Enter 换行</div>
+                </div>
+                <button class="send-btn" id="sendBtn" onclick="send()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messagesEl = document.getElementById('messages');
+        const inputEl = document.getElementById('input');
+        const sendBtn = document.getElementById('sendBtn');
+        const sessionListEl = document.getElementById('sessionList');
+        const dateSelectEl = document.getElementById('dateSelect');
+        const readonlyBannerEl = document.getElementById('readonlyBanner');
+
+        const state = {
+            sessionId: localStorage.getItem('agent_session_id') || newId(),
+            date: todayStr(),
+            readonly: false   // true = 浏览历史，输入禁用
+        };
+        localStorage.setItem('agent_session_id', state.sessionId);
+
+        function todayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        function newId() {
+            return (crypto.randomUUID ? crypto.randomUUID() : 's-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
+        }
+        function fmtTime(ts) {
+            if (!ts) return '';
+            const d = new Date(ts);
+            return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        }
+        function escapeHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        function renderText(s) { return escapeHtml(s).replace(/\n/g, '<br>'); }
+
+        // ============ 历史日期与会话列表 ============
+
+        async function loadDates() {
+            let dates = [];
+            try {
+                dates = await (await fetch('/api/agent/dates')).json();
+            } catch (e) { /* 忽略 */ }
+            if (!dates.includes(state.date)) dates.unshift(state.date);
+            dateSelectEl.innerHTML = dates.map(d =>
+                `<option value="${d}" ${d === state.date ? 'selected' : ''}>${d}${d === todayStr() ? '（今天）' : ''}</option>`
+            ).join('');
+        }
+
+        async function loadSessions() {
+            sessionListEl.innerHTML = '<div class="session-empty">加载中…</div>';
+            let data;
+            try {
+                data = await (await fetch('/api/agent/history?date=' + state.date)).json();
+            } catch (e) {
+                sessionListEl.innerHTML = '<div class="session-empty">加载失败</div>';
+                return;
+            }
+            if (!data.sessions || data.sessions.length === 0) {
+                sessionListEl.innerHTML = '<div class="session-empty">' + (state.date === todayStr() ? '今天还没有对话' : '该日无对话记录') + '</div>';
+                return;
+            }
+            sessionListEl.innerHTML = data.sessions.map(s => {
+                const active = !state.readonly && s.sessionId === state.sessionId;
+                const t = (s.updatedAt || s.createdAt || '').replace('T', ' ').slice(11, 16);
+                return `<div class="session-item ${active ? 'active' : ''}" onclick="openSession('${escapeHtml(s.sessionId)}')">
+                    <div class="preview">${escapeHtml(s.preview || '（无内容）')}</div>
+                    <div class="meta">${escapeHtml(t)} · ${s.messageCount} 条</div>
+                </div>`;
+            }).join('');
+        }
+
+        function onDateChange() {
+            state.date = dateSelectEl.value;
+            state.readonly = true;
+            readonlyBannerEl.classList.add('show');
+            setChatWelcome();
+            loadSessions();
+        }
+
+        async function openSession(sessionId) {
+            let data;
+            try {
+                const res = await fetch('/api/agent/history?date=' + state.date + '&sessionId=' + encodeURIComponent(sessionId));
+                if (res.status === 404) { loadSessions(); return; }
+                data = await res.json();
+            } catch (e) { return; }
+            const isToday = state.date === todayStr();
+            const isCurrent = sessionId === state.sessionId;
+            state.readonly = !(isToday && isCurrent);
+            readonlyBannerEl.classList.toggle('show', state.readonly);
+            renderMessages(data.messages || []);
+            loadSessions();
+        }
+
+        function newSession() {
+            state.sessionId = newId();
+            state.date = todayStr();
+            state.readonly = false;
+            readonlyBannerEl.classList.remove('show');
+            localStorage.setItem('agent_session_id', state.sessionId);
+            if (dateSelectEl.value !== state.date) loadDates();
+            setChatWelcome();
+            loadSessions();
+            inputEl.focus();
+        }
+
+        // ============ 消息渲染 ============
+
+        function setChatWelcome() {
+            messagesEl.innerHTML = `<div class="welcome">
+                <div class="big">百宝箱 · 工具管家</div>
+                <div class="tip">可以让我：列出所有工具 · 启动某个工具 · 停止 / 重启工具 · 修改工具配置<br>例如："有哪些工具在运行？" "启动 Mock API工具" "把项目管理工具设为自动启动"</div>
+            </div>`;
+        }
+
+        function toolChip(c) {
+            const r = c.result || {};
+            let cls = 'ok', icon = '✓', detail = r.message || (r.count !== undefined ? r.count + ' 个工具' : '');
+            if (r.error) { cls = 'fail'; icon = '✗'; detail = r.error; }
+            else if (r.success === false) { cls = 'fail'; icon = '✗'; }
+            const title = escapeHtml(JSON.stringify(c.args || {}));
+            return `<span class="tool-chip ${cls}" title="${title}"><span class="icon">${icon}</span>${escapeHtml(c.name)}${detail ? ' · ' + escapeHtml(detail) : ''}</span>`;
+        }
+
+        function msgHtml(m) {
+            const chips = m.toolCalls && m.toolCalls.length
+                ? `<div class="tool-chips">${m.toolCalls.map(toolChip).join('')}</div>` : '';
+            const role = m.role === 'user' ? 'user' : 'assistant';
+            return `<div class="msg ${role}">
+                <div class="bubble">${renderText(m.content)}${chips}<span class="time">${fmtTime(m.ts)}</span></div>
+            </div>`;
+        }
+
+        function renderMessages(list) {
+            messagesEl.innerHTML = list.map(msgHtml).join('');
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function appendMsg(m) {
+            const welcome = messagesEl.querySelector('.welcome');
+            if (welcome) welcome.remove();
+            messagesEl.insertAdjacentHTML('beforeend', msgHtml(m));
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        // ============ 发送 ============
+
+        async function send() {
+            if (state.readonly) { alert('正在浏览历史会话（只读），请点击"新对话"'); return; }
+            const text = inputEl.value.trim();
+            if (!text || sendBtn.disabled) return;
+
+            inputEl.value = '';
+            sendBtn.disabled = true;
+            inputEl.disabled = true;
+            appendMsg({ role: 'user', content: text, ts: Date.now() });
+            const pending = document.createElement('div');
+            pending.className = 'msg assistant';
+            pending.innerHTML = '<div class="bubble"><span class="thinking">思考中</span></div>';
+            messagesEl.appendChild(pending);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+
+            try {
+                const res = await fetch('/api/agent/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: state.sessionId, message: text })
+                });
+                const data = await res.json();
+                pending.remove();
+                if (!res.ok || !data.success) {
+                    appendMsg({ role: 'assistant', content: '出错了：' + (data.error || ('HTTP ' + res.status)), ts: Date.now() });
+                } else {
+                    appendMsg({ role: 'assistant', content: data.reply, ts: Date.now(), toolCalls: data.toolCalls });
+                    if (dateSelectEl.value !== data.date) await loadDates();
+                }
+            } catch (e) {
+                pending.remove();
+                appendMsg({ role: 'assistant', content: '请求失败：' + e.message, ts: Date.now() });
+            } finally {
+                sendBtn.disabled = false;
+                inputEl.disabled = false;
+                inputEl.focus();
+                loadSessions();
+            }
+        }
+
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+            }
+        });
+
+        // ============ 初始化 ============
+        (async function init() {
+            await loadDates();
+            // 今天已有当前会话的记录则恢复，否则显示欢迎页
+            let today;
+            try {
+                today = await (await fetch('/api/agent/history?date=' + state.date)).json();
+            } catch (e) { today = { sessions: [] }; }
+            const mine = (today.sessions || []).find(s => s.sessionId === state.sessionId);
+            if (mine) {
+                await openSession(state.sessionId);
+            } else {
+                setChatWelcome();
+                await loadSessions();
+            }
+        })();
+    </script>
+</body>
+</html>

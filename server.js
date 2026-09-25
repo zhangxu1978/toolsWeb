@@ -5,9 +5,12 @@ const { spawn, exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+const agent = require('./agent');
+
 const app = express();
 const PORT = 3070;
 const DATA_FILE = path.join(__dirname, 'tools.json');
+agent.init({ port: PORT });
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -488,6 +491,34 @@ app.post('/mcp/call_tool', async (req, res) => {
             error: error.message
         });
     }
+});
+
+// ==================== AI Agent ====================
+
+// 对外对话接口：sessionId 由调用方维护，上下文取当天该会话的历史
+app.post('/api/agent/chat', async (req, res) => {
+    try {
+        const { sessionId, message } = req.body || {};
+        const result = await agent.chat(sessionId, message);
+        res.json({ success: true, ...result });
+    } catch (err) {
+        res.status(err.statusCode || 500).json({ success: false, error: err.message });
+    }
+});
+
+// 历史查询：不带 sessionId 返回某天的会话摘要列表；带 sessionId 返回完整消息
+app.get('/api/agent/history', (req, res) => {
+    const { date, sessionId } = req.query;
+    const result = agent.getHistory(date, sessionId);
+    if (!result) {
+        return res.status(404).json({ error: '会话不存在' });
+    }
+    res.json(result);
+});
+
+// 可用的历史日期列表（供界面切换）
+app.get('/api/agent/dates', (req, res) => {
+    res.json(agent.listDates());
 });
 
 app.listen(PORT, '0.0.0.0', () => {

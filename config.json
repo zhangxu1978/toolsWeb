@@ -1,0 +1,9 @@
+{
+  "agent": {
+    "provider": "MiniMax",
+    "apiKey": "sk-cp-95UfWFpu1fdGyPaTiINwQikPUrOIVmfvKAT0rC6GfgGvAJWYOJ1IwIUcttWZk98q_sgJEjyHIb3n7MNcNjUO5nkz53hEe7K3sZZXliXxMcUljNvrpjBlZXE",
+    "model": "MiniMax-M3",
+    "baseUrl": "https://api.minimaxi.com/v1",
+    "temperature": 0.1
+  }
+}
