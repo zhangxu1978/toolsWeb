@@ -23,7 +23,8 @@
     "services": [],
     "hidden": false,
     "status": "stopped",
-    "autoStart": true
+    "autoStart": true,
+    "category": "work"
   },
   {
     "id": "1780976316285",
@@ -36,7 +37,8 @@
     "services": [],
     "hidden": false,
     "status": "stopped",
-    "autoStart": true
+    "autoStart": true,
+    "category": "work"
   },
   {
     "id": "1787191636951",
@@ -49,7 +51,8 @@
     "services": [],
     "hidden": false,
     "autoStart": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work"
   },
   {
     "id": "1787282271459",
@@ -62,7 +65,8 @@
     "services": [],
     "hidden": false,
     "autoStart": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work"
   },
   {
     "id": "1787282406603",
@@ -75,7 +79,8 @@
     "services": [],
     "hidden": false,
     "autoStart": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work"
   },
   {
     "id": "1780034647142",
@@ -87,7 +92,9 @@
     "homeUrl": "http://localhost:3210/agent.html",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work",
+    "autoStart": false
   },
   {
     "id": "1788165758623",
@@ -100,7 +107,8 @@
     "services": [],
     "hidden": false,
     "autoStart": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life"
   },
   {
     "id": "1774701422193",
@@ -137,7 +145,8 @@
     "services": [],
     "hidden": false,
     "status": "stopped",
-    "autoStart": true
+    "autoStart": true,
+    "category": "life"
   },
   {
     "id": "1782887657075",
@@ -149,7 +158,9 @@
     "homeUrl": "http://127.0.0.1:3080",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1781225020138",
@@ -161,7 +172,9 @@
     "homeUrl": "http://localhost:3402",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1781224393817",
@@ -174,7 +187,8 @@
     "services": [],
     "hidden": false,
     "status": "stopped",
-    "autoStart": false
+    "autoStart": false,
+    "category": "life"
   },
   {
     "id": "1786593568266",
@@ -187,7 +201,8 @@
     "services": [],
     "hidden": false,
     "autoStart": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life"
   },
   {
     "id": "1774702921653",
@@ -198,7 +213,9 @@
     "healthCheckUrl": "http://localhost:8090/health",
     "status": "stopped",
     "homeUrl": "http://127.0.0.1:8090",
-    "hidden": true
+    "hidden": true,
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1774703263812",
@@ -209,7 +226,9 @@
     "healthCheckUrl": "",
     "status": "stopped",
     "homeUrl": "http://127.0.0.1:8080",
-    "hidden": true
+    "hidden": true,
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1774838727032",
@@ -220,7 +239,10 @@
     "healthCheckUrl": "",
     "homeUrl": "http://127.0.0.1:3033",
     "services": [],
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "hidden": false,
+    "autoStart": false
   },
   {
     "id": "1774941160778",
@@ -231,7 +253,10 @@
     "healthCheckUrl": "",
     "homeUrl": "http://127.0.0.1:3200",
     "services": [],
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "hidden": false,
+    "autoStart": false
   },
   {
     "id": "1775112629050",
@@ -255,7 +280,9 @@
     "homeUrl": "http://127.0.0.1:3088",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1775541329563",
@@ -315,7 +342,9 @@
     "homeUrl": "http://127.0.0.1:3300",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work",
+    "autoStart": false
   },
   {
     "id": "1777646577408",
@@ -327,7 +356,9 @@
     "homeUrl": "",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1778286260637",
@@ -339,7 +370,9 @@
     "homeUrl": "http://localhost:3023",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1778310805834",
@@ -387,7 +420,9 @@
     "homeUrl": "http://localhost:9820/",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work",
+    "autoStart": false
   },
   {
     "id": "1780236316011",
@@ -399,7 +434,9 @@
     "homeUrl": "http://127.0.0.1:3211/api/user",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work",
+    "autoStart": false
   },
   {
     "id": "1781327146343",
@@ -423,7 +460,9 @@
     "homeUrl": "http://127.0.0.1:3090",
     "services": [],
     "hidden": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "life",
+    "autoStart": false
   },
   {
     "id": "1786667566757",
@@ -449,6 +488,7 @@
     "services": [],
     "hidden": false,
     "autoStart": false,
-    "status": "stopped"
+    "status": "stopped",
+    "category": "work"
   }
 ]

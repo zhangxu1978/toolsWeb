@@ -43,6 +43,53 @@
             gap: 12px;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .category-tabs {
+            display: flex;
+        }
+
+        .cat-tab {
+            padding: 8px 14px;
+            border: 1px solid #dcdfe6;
+            border-left-width: 0;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .cat-tab:first-child {
+            border-left-width: 1px;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .cat-tab:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .cat-tab.active {
+            background: #409eff;
+            color: white;
+            border-color: #409eff;
+        }
+
+        .tool-cat {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .cat-work { background: #e8f0fe; color: #2e4a62; }
+        .cat-life { background: #fdf0e6; color: #c94c4c; }
+        .cat-general { background: #f0f5e8; color: #6b8e23; }
+
         .filter-select {
             padding: 8px 12px;
             border: 1px solid #dcdfe6;
@@ -541,6 +588,32 @@
             box-shadow: 0 0 0 3px rgba(212, 182, 107, 0.15);
         }
 
+        [data-theme="chinese"] .cat-tab {
+            border: 1px solid var(--border-classic);
+            background: var(--paper-elev);
+            color: var(--ink);
+            font-family: var(--font-kai);
+            letter-spacing: 2px;
+        }
+        [data-theme="chinese"] .cat-tab:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px var(--gold-light);
+        }
+        [data-theme="chinese"] .cat-tab + .cat-tab { border-left: none; }
+        [data-theme="chinese"] .cat-tab.active {
+            background: linear-gradient(180deg, var(--rouge), var(--rouge-deep));
+            color: #fff;
+            border-color: var(--rouge-deep);
+            box-shadow: 0 0 0 2px rgba(201, 76, 76, .2);
+        }
+        [data-theme="chinese"] .tool-cat {
+            font-family: var(--font-kai);
+            letter-spacing: 1px;
+        }
+        [data-theme="chinese"] .cat-work { background: rgba(46, 74, 98, .10); color: var(--indigo); border: 1px solid var(--indigo-light); }
+        [data-theme="chinese"] .cat-life { background: rgba(201, 76, 76, .08); color: var(--rouge); border: 1px solid var(--rouge-light); }
+        [data-theme="chinese"] .cat-general { background: rgba(107, 142, 35, .10); color: var(--jade); border: 1px solid var(--jade); }
+
         [data-theme="chinese"] .tool-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -753,12 +826,25 @@
             font-size: 13px;
         }
         [data-theme="modern"] .theme-toggle:hover { border-color: #409eff; color: #409eff; }
+        [data-theme="modern"] .cat-tab:hover { border-color: #409eff; color: #409eff; }
+        [data-theme="modern"] .cat-tab.active {
+            background: #409eff;
+            color: white;
+            border-color: #409eff;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>工具管理</h1>
+            <div class="header-left">
+                <h1>工具管理</h1>
+                <div class="category-tabs" id="categoryTabs">
+                    <button class="cat-tab" data-cat="work" onclick="setCategoryFilter('work')" title="工作">公</button>
+                    <button class="cat-tab" data-cat="life" onclick="setCategoryFilter('life')" title="生活">私</button>
+                    <button class="cat-tab" data-cat="general" onclick="setCategoryFilter('general')" title="通用">通</button>
+                </div>
+            </div>
             <div class="header-right">
                 <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">❖ 国风</button>
                 <select id="statusFilter" class="filter-select" onchange="filterTools()">
@@ -786,7 +872,7 @@
             <div class="modal-body">
                 <form id="toolForm">
                     <input type="hidden" id="toolId">
-                    <div class="form-row">
+                    <div class="form-row" style="grid-template-columns: 1.2fr 1fr 1fr;">
                         <div class="form-group">
                             <label>工具名称</label>
                             <input type="text" id="toolName" required placeholder="例如: My Server">
@@ -798,6 +884,14 @@
                                 <option value="python">python</option>
                                 <option value="node">node</option>
                                 <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>分类</label>
+                            <select id="toolCategory">
+                                <option value="work">工作（公）</option>
+                                <option value="life">生活（私）</option>
+                                <option value="general" selected>通用（通）</option>
                             </select>
                         </div>
                     </div>
@@ -884,6 +978,21 @@
         let tools = [];
         let currentToolId = null;
         let currentServiceIndex = null;
+        let categoryFilter = 'all';
+
+        const CATEGORY_LABEL = { work: '公', life: '私', general: '通' };
+
+        function setCategoryFilter(cat) {
+            categoryFilter = categoryFilter === cat ? 'all' : cat;
+            renderCategoryTabs();
+            renderTools();
+        }
+
+        function renderCategoryTabs() {
+            document.querySelectorAll('#categoryTabs .cat-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cat === categoryFilter);
+            });
+        }
 
         function filterTools() {
             renderTools();
@@ -905,6 +1014,7 @@
             const filter = document.getElementById('statusFilter').value;
             
             const filteredTools = tools.filter(tool => {
+                if (categoryFilter !== 'all' && (tool.category || 'general') !== categoryFilter) return false;
                 if (filter === 'all') return true;
                 return tool.status === filter;
             });
@@ -933,6 +1043,7 @@
                         <div>
                             <span class="tool-name">${tool.name}</span>
                             <span class="tool-type">${tool.type}</span>
+                            <span class="tool-cat cat-${tool.category || 'general'}">${CATEGORY_LABEL[tool.category || 'general']}</span>
                         </div>
                         <span class="status-badge ${tool.status === 'running' ? 'status-running' : 'status-stopped'}">
                             ${tool.status === 'running' ? '运行中' : '已停止'}
@@ -985,6 +1096,7 @@
                 document.getElementById('toolCommand').value = tool.command;
                 document.getElementById('toolHealthCheck').value = tool.healthCheckUrl || '';
                 document.getElementById('toolHomeUrl').value = tool.homeUrl || '';
+                document.getElementById('toolCategory').value = tool.category || 'general';
                 document.getElementById('toolHidden').checked = tool.hidden || false;
                 document.getElementById('toolAutoStart').checked = tool.autoStart || false;
             } else {
@@ -1234,6 +1346,7 @@
                 command: document.getElementById('toolCommand').value,
                 healthCheckUrl: document.getElementById('toolHealthCheck').value,
                 homeUrl: document.getElementById('toolHomeUrl').value,
+                category: document.getElementById('toolCategory').value,
                 hidden: document.getElementById('toolHidden').checked,
                 autoStart: document.getElementById('toolAutoStart').checked
             };

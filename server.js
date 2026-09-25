@@ -188,6 +188,7 @@ app.post('/api/tools', (req, res) => {
         command: req.body.command,
         healthCheckUrl: req.body.healthCheckUrl || '',
         homeUrl: req.body.homeUrl || '',
+        category: req.body.category || 'general',
         services: req.body.services || [],
         hidden: req.body.hidden || false,
         autoStart: req.body.autoStart || false,
