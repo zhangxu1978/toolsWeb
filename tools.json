@@ -9,7 +9,7 @@
     "homeUrl": "http://localhost:3404/",
     "services": [],
     "hidden": false,
-    "autoStart": false,
+    "autoStart": true,
     "status": "stopped"
   },
   {
@@ -23,7 +23,7 @@
     "services": [],
     "hidden": false,
     "status": "stopped",
-    "autoStart": false
+    "autoStart": true
   },
   {
     "id": "1780976316285",
@@ -44,8 +44,59 @@
     "type": "npm",
     "workDir": "D:\\work\\work\\git\\tools\\agentpostman",
     "command": "npm start",
-    "healthCheckUrl": "http://127.0.0.1:3405 ",
+    "healthCheckUrl": "http://127.0.0.1:3405/health",
     "homeUrl": "http://127.0.0.1:3405 ",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1787282271459",
+    "name": "和利时-工作流A",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\helishi_zhou\\helishi_from_dongruan",
+    "command": "npm start",
+    "healthCheckUrl": "http://localhost:3101/health",
+    "homeUrl": "http://localhost:3101",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1787282406603",
+    "name": "和利时-工作流B",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\helishi_zhou\\helishi_from_his",
+    "command": "npm start",
+    "healthCheckUrl": "http://localhost:3101/health",
+    "homeUrl": "http://localhost:3101",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1780034647142",
+    "name": "需求生成",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\work\\lowcode",
+    "command": "npm run dev",
+    "healthCheckUrl": "http://localhost:3210/health",
+    "homeUrl": "http://localhost:3210/agent.html",
+    "services": [],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1788165758623",
+    "name": "游戏图片处理工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\game\\rpgmakerPngToGodot",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "",
     "services": [],
     "hidden": false,
     "autoStart": false,
@@ -89,31 +140,6 @@
     "autoStart": true
   },
   {
-    "id": "1781225020138",
-    "name": "免费生图前端",
-    "type": "npm",
-    "workDir": "D:\\work\\work\\git\\tools\\agentimg",
-    "command": "npm run dev",
-    "healthCheckUrl": "http://localhost:3402/health",
-    "homeUrl": "http://localhost:3402",
-    "services": [],
-    "hidden": false,
-    "status": "stopped"
-  },
-  {
-    "id": "1786593568266",
-    "name": "精灵动画生成工具",
-    "type": "npm",
-    "workDir": "D:\\work\\work\\git\\tools\\Spritesheet-Character-Generator",
-    "command": "npm start",
-    "healthCheckUrl": "",
-    "homeUrl": "http://localhost:3417",
-    "services": [],
-    "hidden": false,
-    "autoStart": false,
-    "status": "stopped"
-  },
-  {
     "id": "1782887657075",
     "name": "声韵",
     "type": "other",
@@ -121,6 +147,18 @@
     "command": "start.bat",
     "healthCheckUrl": "",
     "homeUrl": "http://127.0.0.1:3080",
+    "services": [],
+    "hidden": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1781225020138",
+    "name": "免费生图前端",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\agentimg",
+    "command": "npm run dev",
+    "healthCheckUrl": "http://localhost:3402/health",
+    "homeUrl": "http://localhost:3402",
     "services": [],
     "hidden": false,
     "status": "stopped"
@@ -137,6 +175,19 @@
     "hidden": false,
     "status": "stopped",
     "autoStart": false
+  },
+  {
+    "id": "1786593568266",
+    "name": "精灵动画生成工具",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\Spritesheet-Character-Generator",
+    "command": "npm start",
+    "healthCheckUrl": "",
+    "homeUrl": "http://localhost:3417",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
   },
   {
     "id": "1774702921653",
@@ -339,18 +390,6 @@
     "status": "stopped"
   },
   {
-    "id": "1780034647142",
-    "name": "需求生成",
-    "type": "npm",
-    "workDir": "D:\\work\\work\\work\\lowcode",
-    "command": "npm run dev",
-    "healthCheckUrl": "http://localhost:3210/health",
-    "homeUrl": "http://localhost:3210/agent.html",
-    "services": [],
-    "hidden": false,
-    "status": "stopped"
-  },
-  {
     "id": "1780236316011",
     "name": "低代码平台后台",
     "type": "npm",
@@ -394,6 +433,19 @@
     "command": "pnpm dsh web",
     "healthCheckUrl": "http://127.0.0.1:3080/health",
     "homeUrl": "http://127.0.0.1:3080",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
+  },
+  {
+    "id": "1788903371279",
+    "name": "agentppt",
+    "type": "node",
+    "workDir": "D:\\work\\work\\git\\tools\\agentHtmlPpt",
+    "command": "node server.js",
+    "healthCheckUrl": "http://localhost:3123/",
+    "homeUrl": "http://localhost:3123/",
     "services": [],
     "hidden": false,
     "autoStart": false,

@@ -260,6 +260,20 @@
             margin-bottom: 16px;
         }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row.checkbox-row .form-group {
+            margin-bottom: 8px;
+        }
+
         .form-group label {
             display: block;
             margin-bottom: 6px;
@@ -764,7 +778,7 @@
     </div>
 
     <div id="modal" class="modal-overlay">
-        <div class="modal">
+        <div class="modal" style="width: 760px;">
             <div class="modal-header">
                 <h2 id="modalTitle">添加工具</h2>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -772,47 +786,57 @@
             <div class="modal-body">
                 <form id="toolForm">
                     <input type="hidden" id="toolId">
-                    <div class="form-group">
-                        <label>工具名称</label>
-                        <input type="text" id="toolName" required placeholder="例如: My Server">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>工具名称</label>
+                            <input type="text" id="toolName" required placeholder="例如: My Server">
+                        </div>
+                        <div class="form-group">
+                            <label>服务类型</label>
+                            <select id="toolType" required>
+                                <option value="npm">npm</option>
+                                <option value="python">python</option>
+                                <option value="node">node</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>运行目录</label>
+                            <input type="text" id="toolWorkDir" required placeholder="例如: D:\project\myapp">
+                        </div>
+                        <div class="form-group">
+                            <label>启动命令</label>
+                            <input type="text" id="toolCommand" required placeholder="例如: npm run dev  或  java -jar app.jar ; taskkill /im java.exe">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>服务器类型</label>
-                        <select id="toolType" required>
-                            <option value="npm">npm</option>
-                            <option value="python">python</option>
-                            <option value="node">node</option>
-                            <option value="other">其他</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>运行目录</label>
-                        <input type="text" id="toolWorkDir" required placeholder="例如: D:\project\myapp">
-                    </div>
-                    <div class="form-group">
-                        <label>启动命令</label>
-                        <input type="text" id="toolCommand" required placeholder="例如: npm run dev  或  java -jar app.jar ; taskkill /im java.exe">
                         <small style="color: #888;">其他类型可用 ; 分隔，前面是启动命令，后面是停止命令</small>
                     </div>
-                    <div class="form-group">
-                        <label>健康检查 URL（可选）</label>
-                        <input type="text" id="toolHealthCheck" placeholder="例如: http://localhost:3000/health">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>健康检查 URL（可选）</label>
+                            <input type="text" id="toolHealthCheck" placeholder="例如: http://localhost:3000/health">
+                        </div>
+                        <div class="form-group">
+                            <label>首页地址（可选）</label>
+                            <input type="text" id="toolHomeUrl" placeholder="例如: http://localhost:3000">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>首页地址（可选）</label>
-                        <input type="text" id="toolHomeUrl" placeholder="例如: http://localhost:3000">
-                    </div>
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="toolHidden" style="width: auto;">
-                            隐藏（运行中工具接口将不显示此工具）
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="toolAutoStart" style="width: auto;">
-                            自动启动（系统启动后自动启动此工具）
-                        </label>
+                    <div class="form-row checkbox-row">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="toolHidden" style="width: auto;">
+                                隐藏（运行中工具接口将不显示此工具）
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="toolAutoStart" style="width: auto;">
+                                自动启动（系统启动后自动启动此工具）
+                            </label>
+                        </div>
                     </div>
                 </form>
             </div>
