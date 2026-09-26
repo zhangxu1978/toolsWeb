@@ -16,6 +16,19 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// 服务自身健康检查
+app.get('/health', (req, res) => {
+    const tools = loadTools();
+    const running = tools.filter(t => runningProcesses[t.id] && runningProcesses[t.id].proc).length;
+    res.json({
+        status: 'ok',
+        port: PORT,
+        uptime: process.uptime(),
+        time: new Date().toISOString(),
+        tools: { total: tools.length, running }
+    });
+});
+
 function loadTools() {
     if (!fs.existsSync(DATA_FILE)) {
         return [];
@@ -263,7 +276,46 @@ app.post('/api/tools/:id/start', (req, res) => {
     res.json({ success: true, message: '工具已启动' });
 });
 
-app.post('/api/tools/:id/stop', (req, res) => {
+// 从 URL 提取端口（支持 http://x:port/、localhost:port 等写法），无显式端口返回 null
+function extractPort(urlStr) {
+    const s = String(urlStr || '').trim();
+    if (!s) return null;
+    try {
+        const u = new URL(s);
+        return u.port || null;
+    } catch (e) {
+        const m = s.match(/:(\d{2,5})/);
+        return m ? m[1] : null;
+    }
+}
+
+// 查找监听指定端口的所有进程 PID
+function findListeningPids(port) {
+    return new Promise((resolve) => {
+        if (process.platform === 'win32') {
+            exec('netstat -ano', (err, stdout) => {
+                if (err || !stdout) return resolve([]);
+                const pids = new Set();
+                for (const line of stdout.split(/\r?\n/)) {
+                    // TCP    0.0.0.0:3080    0.0.0.0:0    LISTENING    12345
+                    const m = line.match(/TCP\s+\S*:(\d+)\s+\S+\s+LISTENING\s+(\d+)/i);
+                    if (m && m[1] === String(port)) {
+                        pids.add(Number(m[2]));
+                    }
+                }
+                resolve([...pids].filter(p => p && p !== process.pid));
+            });
+        } else {
+            exec(`lsof -ti :${port}`, (err, stdout) => {
+                if (err || !stdout) return resolve([]);
+                resolve(stdout.trim().split(/\s+/).map(Number)
+                    .filter(p => p && p !== process.pid));
+            });
+        }
+    });
+}
+
+app.post('/api/tools/:id/stop', async (req, res) => {
     const toolId = req.params.id;
     const entry = runningProcesses[toolId];
     const isWindows = process.platform === 'win32';
@@ -281,23 +333,68 @@ app.post('/api/tools/:id/stop', (req, res) => {
     const toolType = entry.type || (tool && tool.type);
     const stopCmd = entry.stopCmd;
 
-    // other 类型：依赖用户配置的停止命令
+    // other 类型：优先使用配置的停止命令；未配置时走通用停止（按端口找进程 kill）
     if (toolType === 'other') {
-        if (!stopCmd) {
+        if (stopCmd) {
+            const shell = isWindows ? 'cmd.exe' : '/bin/sh';
+            const shellArgs = isWindows ? ['/c', stopCmd] : ['-c', stopCmd];
+            console.log(`[stop] other 类型 执行停止命令: ${stopCmd} cwd=${tool && tool.workDir}`);
+            const stopProc = spawn(shell, shellArgs, {
+                cwd: tool ? tool.workDir : undefined,
+                detached: !isWindows,
+                stdio: 'ignore'
+            });
+            stopProc.unref();
             delete runningProcesses[toolId];
-            return res.status(400).json({ error: '该工具未配置停止命令，请先在启动命令后用 ; 分隔填写停止命令' });
+            return res.json({ success: true, message: '工具已停止' });
         }
-        const shell = isWindows ? 'cmd.exe' : '/bin/sh';
-        const shellArgs = isWindows ? ['/c', stopCmd] : ['-c', stopCmd];
-        console.log(`[stop] other 类型 执行停止命令: ${stopCmd} cwd=${tool && tool.workDir}`);
-        const stopProc = spawn(shell, shellArgs, {
-            cwd: tool ? tool.workDir : undefined,
-            detached: !isWindows,
-            stdio: 'ignore'
-        });
-        stopProc.unref();
-        delete runningProcesses[toolId];
-        return res.json({ success: true, message: '工具已停止' });
+
+        // 通用停止：从 healthCheckUrl / homeUrl 提取端口，找到监听进程后 kill
+        const ports = [];
+        const port1 = extractPort(tool && tool.healthCheckUrl);
+        const port2 = extractPort(tool && tool.homeUrl);
+        if (port1) ports.push(port1);
+        if (port2 && !ports.includes(port2)) ports.push(port2);
+        if (ports.length === 0) {
+            return res.status(400).json({ error: '该工具未配置停止命令，且 healthCheckUrl/homeUrl 均未配置端口，无法自动停止' });
+        }
+
+        console.log(`[stop] other 类型 无停止命令，按端口通用停止: ${ports.join(', ')}`);
+        const pidGroups = await Promise.all(ports.map(p => findListeningPids(p)));
+        const pids = [...new Set(pidGroups.flat())];
+        if (pids.length === 0) {
+            delete runningProcesses[toolId];
+            return res.json({ success: true, message: `端口 ${ports.join(', ')} 未发现监听进程，视为已停止` });
+        }
+
+        console.log(`[stop] other 类型 端口 ${ports.join(', ')} 找到进程: ${pids.join(', ')}`);
+        if (isWindows) {
+            let killed = 0;
+            let pending = pids.length;
+            for (const pid of pids) {
+                exec(`taskkill /pid ${pid} /T /F`, (err) => {
+                    if (err) {
+                        console.log(`[stop] taskkill pid=${pid} 失败: ${err.message}`);
+                    } else {
+                        killed++;
+                    }
+                    if (--pending === 0) {
+                        delete runningProcesses[toolId];
+                        if (killed === 0) {
+                            return res.status(500).json({ error: '停止进程失败' });
+                        }
+                        res.json({ success: true, message: `已结束进程 ${pids.join(', ')}，工具已停止` });
+                    }
+                });
+            }
+        } else {
+            for (const pid of pids) {
+                try { process.kill(pid, 'SIGTERM'); } catch (e) { /* 进程可能已退出 */ }
+            }
+            delete runningProcesses[toolId];
+            return res.json({ success: true, message: `已结束进程 ${pids.join(', ')}，工具已停止` });
+        }
+        return;
     }
 
     // npm 等其他类型：必须进程还在才能 taskkill

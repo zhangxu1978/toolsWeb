@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="chinese">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康检查</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root, [data-theme="chinese"] {
+            --paper: #f5f1e8;
+            --paper-elev: #f0e9d6;
+            --ink: #2c2c2c;
+            --ink-soft: #4a4a4a;
+            --ink-light: #888888;
+            --rouge: #c94c4c;
+            --rouge-deep: #a53838;
+            --rouge-light: #e08a8a;
+            --indigo: #2e4a62;
+            --indigo-light: #4a6f8f;
+            --gold: #b8923a;
+            --gold-light: #d4b66b;
+            --jade: #6b8e23;
+            --border-classic: #c9bfa4;
+            --shadow-soft: 0 2px 12px rgba(60, 40, 20, 0.08);
+            --font-serif: "Source Han Serif SC", "Noto Serif SC", "SimSun", "STSong", serif;
+            --font-kai: "KaiTi", "STKaiti", "楷体", "华文楷体", serif;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 20% 10%, rgba(201, 76, 76, 0.04), transparent 40%),
+                radial-gradient(circle at 80% 90%, rgba(46, 74, 98, 0.05), transparent 45%),
+                var(--paper);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.7;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-family: var(--font-kai);
+            font-size: 28px;
+            letter-spacing: 4px;
+            color: var(--ink);
+        }
+        .header h1::before {
+            content: "❖ ";
+            color: var(--rouge);
+            margin-right: 4px;
+        }
+
+        .header-right { display: flex; align-items: center; gap: 12px; }
+
+        .btn {
+            padding: 7px 16px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid var(--border-classic);
+            color: var(--ink);
+            font-family: var(--font-serif);
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all .15s;
+        }
+        .btn:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 1px var(--gold-light);
+        }
+        .btn-primary {
+            background: linear-gradient(180deg, var(--rouge), var(--rouge-deep));
+            color: #fff;
+            border: none;
+            font-weight: 600;
+        }
+        .btn-primary:hover { filter: brightness(1.08); box-shadow: 0 0 0 2px rgba(201, 76, 76, .2); }
+        .btn.active { background: var(--jade); color: #fff; border-color: var(--jade); }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--paper-elev);
+            border: 1px solid var(--border-classic);
+            border-radius: 10px;
+            box-shadow: var(--shadow-soft);
+            padding: 16px 20px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 32px;
+            font-weight: 700;
+            font-family: var(--font-kai);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--ink-light);
+            letter-spacing: 2px;
+        }
+
+        .num-total { color: var(--indigo); }
+        .num-running { color: var(--jade); }
+        .num-stopped { color: var(--ink-light); }
+        .num-unhealthy { color: var(--rouge); }
+
+        .server-info {
+            background: var(--paper-elev);
+            border: 1px solid var(--border-classic);
+            border-radius: 10px;
+            box-shadow: var(--shadow-soft);
+            padding: 12px 20px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: var(--ink-soft);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 24px;
+        }
+
+        .server-info label { color: var(--ink-light); }
+
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 18px;
+        }
+
+        .health-card {
+            background: var(--paper-elev);
+            border: 1px solid var(--border-classic);
+            border-radius: 10px;
+            box-shadow: var(--shadow-soft);
+            padding: 20px;
+            position: relative;
+        }
+        .health-card::before {
+            content: '';
+            position: absolute; top: 8px; right: 8px;
+            width: 14px; height: 14px;
+            border-top: 1px solid var(--gold);
+            border-right: 1px solid var(--gold);
+        }
+        .health-card::after {
+            content: '';
+            position: absolute; bottom: 8px; left: 8px;
+            width: 14px; height: 14px;
+            border-bottom: 1px solid var(--gold);
+            border-left: 1px solid var(--gold);
+        }
+
+        .health-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .health-name {
+            font-family: var(--font-kai);
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 6px;
+            border: 1px solid transparent;
+        }
+
+        .badge-type {
+            background: rgba(184, 146, 58, 0.12);
+            color: var(--gold);
+            border-color: var(--gold-light);
+        }
+
+        .badge-running {
+            background: rgba(107, 142, 35, 0.12);
+            color: var(--jade);
+            border-color: var(--jade);
+        }
+        .badge-stopped {
+            background: rgba(136, 136, 136, 0.10);
+            color: var(--ink-light);
+            border-color: var(--border-classic);
+        }
+        .badge-healthy {
+            background: rgba(107, 142, 35, 0.12);
+            color: var(--jade);
+            border-color: var(--jade);
+        }
+        .badge-unhealthy {
+            background: rgba(201, 76, 76, 0.10);
+            color: var(--rouge);
+            border-color: var(--rouge-light);
+        }
+
+        .health-info p {
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: var(--ink-soft);
+            word-break: break-all;
+        }
+        .health-info label { color: var(--ink-light); font-size: 12px; }
+        .health-info a { color: var(--indigo); text-decoration: none; }
+        .health-info a:hover { color: var(--rouge); }
+
+        .dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .dot-running { background: var(--jade); }
+        .dot-stopped { background: var(--ink-light); }
+        .dot-unhealthy { background: var(--rouge); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--ink-light);
+            font-size: 16px;
+        }
+
+        [data-theme="modern"] body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+        }
+        [data-theme="modern"] .header h1 { font-family: inherit; letter-spacing: 0; }
+        [data-theme="modern"] .header h1::before { content: ""; }
+        [data-theme="modern"] .btn { font-family: inherit; border-radius: 4px; letter-spacing: 0; }
+        [data-theme="modern"] .btn-primary { background: #409eff; }
+        [data-theme="modern"] .stat-card, [data-theme="modern"] .health-card, [data-theme="modern"] .server-info {
+            background: #fff;
+            border-color: #dcdfe6;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        [data-theme="modern"] .health-name { font-family: inherit; }
+        [data-theme="modern"] .num-total { color: #409eff; }
+        [data-theme="modern"] .num-running { color: #67c23a; }
+        [data-theme="modern"] .num-stopped { color: #909399; }
+        [data-theme="modern"] .num-unhealthy { color: #f56c6c; }
+        [data-theme="modern"] .badge-type { background: #ecf5ff; color: #409eff; border-color: transparent; }
+        [data-theme="modern"] .badge-running { background: #f0f9ff; color: #67c23a; border-color: transparent; }
+        [data-theme="modern"] .badge-stopped { background: #f5f7fa; color: #909399; border-color: transparent; }
+        [data-theme="modern"] .badge-healthy { background: #f0f9ff; color: #67c23a; border-color: transparent; }
+        [data-theme="modern"] .badge-unhealthy { background: #fef0f0; color: #f56c6c; border-color: transparent; }
+        [data-theme="modern"] .health-info a { color: #409eff; }
+        [data-theme="modern"] .dot-running { background: #67c23a; }
+        [data-theme="modern"] .dot-stopped { background: #909399; }
+        [data-theme="modern"] .dot-unhealthy { background: #f56c6c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>健康检查</h1>
+            <div class="header-right">
+                <button class="btn active" id="autoBtn" onclick="toggleAuto()" title="自动刷新">自动刷新：开</button>
+                <button class="btn" onclick="loadAll()">刷新</button>
+                <button class="btn" onclick="toggleTheme()" title="切换主题">❖ 国风</button>
+                <button class="btn" onclick="location.href='/'">返回工具</button>
+            </div>
+        </div>
+
+        <div class="server-info" id="serverInfo"></div>
+
+        <div class="summary">
+            <div class="stat-card">
+                <div class="stat-num num-total" id="statTotal">0</div>
+                <div class="stat-label">全部工具</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num num-running" id="statRunning">0</div>
+                <div class="stat-label">运行中</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num num-stopped" id="statStopped">0</div>
+                <div class="stat-label">已停止</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num num-unhealthy" id="statUnhealthy">0</div>
+                <div class="stat-label">健康异常</div>
+            </div>
+        </div>
+
+        <div id="healthGrid" class="health-grid"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <p>暂无工具，先到工具管理页添加</p>
+        </div>
+    </div>
+
+    <script>
+        let tools = [];
+        let autoTimer = null;
+
+        function fmtUptime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            if (h > 0) return `${h}小时${m}分${s}秒`;
+            if (m > 0) return `${m}分${s}秒`;
+            return `${s}秒`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/&/g, '&amp;')
+                               .replace(/</g, '&lt;')
+                               .replace(/>/g, '&gt;')
+                               .replace(/"/g, '&quot;');
+        }
+
+        async function loadServerInfo() {
+            try {
+                const res = await fetch('/health');
+                const data = await res.json();
+                document.getElementById('serverInfo').innerHTML = `
+                    <span><label>服务状态：</label>${data.status === 'ok' ? '✓ 正常' : '✗ 异常'}</span>
+                    <span><label>运行时长：</label>${fmtUptime(data.uptime)}</span>
+                    <span><label>当前时间：</label>${new Date(data.time).toLocaleString()}</span>
+                    <span><label>端口：</label>${data.port}</span>
+                `;
+            } catch (error) {
+                document.getElementById('serverInfo').innerHTML = '<span style="color: var(--rouge);">✗ 无法连接服务器</span>';
+            }
+        }
+
+        async function loadTools() {
+            try {
+                const response = await fetch('/api/tools');
+                tools = await response.json();
+                render();
+            } catch (error) {
+                console.error('加载工具失败:', error);
+            }
+        }
+
+        function loadAll() {
+            loadServerInfo();
+            loadTools();
+        }
+
+        function render() {
+            const grid = document.getElementById('healthGrid');
+            const empty = document.getElementById('emptyState');
+
+            const running = tools.filter(t => t.status === 'running').length;
+            const stopped = tools.length - running;
+            const unhealthy = tools.filter(t => t.health && t.health.status !== 'healthy').length;
+
+            document.getElementById('statTotal').textContent = tools.length;
+            document.getElementById('statRunning').textContent = running;
+            document.getElementById('statStopped').textContent = stopped;
+            document.getElementById('statUnhealthy').textContent = unhealthy;
+
+            if (tools.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+
+            grid.innerHTML = tools.map(tool => {
+                const isRunning = tool.status === 'running';
+                const health = tool.health;
+                const healthBadge = tool.healthCheckUrl ? `
+                    ${health ? `
+                        <span class="badge ${health.status === 'healthy' ? 'badge-healthy' : 'badge-unhealthy'}">
+                            <span class="dot ${health.status === 'healthy' ? 'dot-running' : 'dot-unhealthy'}"></span>
+                            ${health.status === 'healthy' ? '健康' : '异常'}
+                        </span>
+                    ` : `<span class="badge badge-stopped">未检查</span>`}
+                ` : '';
+                return `
+                    <div class="health-card">
+                        <div class="health-card-header">
+                            <div>
+                                <span class="health-name">${escapeHtml(tool.name)}</span>
+                                <span class="badge badge-type">${escapeHtml(tool.type)}</span>
+                            </div>
+                            <span class="badge ${isRunning ? 'badge-running' : 'badge-stopped'}">
+                                <span class="dot ${isRunning ? 'dot-running' : 'dot-stopped'}"></span>
+                                ${isRunning ? '运行中' : '已停止'}
+                            </span>
+                        </div>
+                        <div class="health-info">
+                            <p><label>健康检查：</label>${tool.healthCheckUrl ? escapeHtml(tool.healthCheckUrl) : '未配置'}</p>
+                            ${health ? `<p><label>检查结果：</label>${escapeHtml(health.message)}</p>` : ''}
+                            <p><label>首页地址：</label>${tool.homeUrl ? `<a href="${escapeHtml(tool.homeUrl)}" target="_blank">${escapeHtml(tool.homeUrl)}</a>` : '未配置'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleAuto() {
+            const btn = document.getElementById('autoBtn');
+            if (autoTimer) {
+                clearInterval(autoTimer);
+                autoTimer = null;
+                btn.textContent = '自动刷新：关';
+                btn.classList.remove('active');
+            } else {
+                autoTimer = setInterval(loadAll, 5000);
+                btn.textContent = '自动刷新：开';
+                btn.classList.add('active');
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.dataset.theme || 'chinese';
+            const next = current === 'chinese' ? 'modern' : 'chinese';
+            document.documentElement.dataset.theme = next;
+            const btn = document.querySelector('[onclick="toggleTheme()"]');
+            if (btn) btn.textContent = next === 'chinese' ? '❖ 国风' : '◇ 现代';
+            try { localStorage.setItem('toolsWeb:theme', next); } catch (e) {}
+        }
+
+        (function restoreTheme() {
+            let saved = null;
+            try { saved = localStorage.getItem('toolsWeb:theme'); } catch (e) {}
+            if (saved === 'chinese' || saved === 'modern') {
+                document.documentElement.dataset.theme = saved;
+                const btn = document.querySelector('[onclick="toggleTheme()"]');
+                if (btn) btn.textContent = saved === 'chinese' ? '❖ 国风' : '◇ 现代';
+            }
+        })();
+
+        loadAll();
+        autoTimer = setInterval(loadAll, 5000);
+    </script>
+</body>
+</html>
