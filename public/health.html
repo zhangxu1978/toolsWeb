@@ -274,6 +274,107 @@
         [data-theme="modern"] .dot-running { background: #67c23a; }
         [data-theme="modern"] .dot-stopped { background: #909399; }
         [data-theme="modern"] .dot-unhealthy { background: #f56c6c; }
+
+        /* ============================================ */
+        /* ========= 浮雕主题（Neumorphism） =========== */
+        /* ============================================ */
+
+        [data-theme="emboss"] {
+            --neu-bg: #e8e8e8;
+            --neu-light: #ffffff;
+            --neu-dark: #d1d1d1;
+            --neu-ink: #4a4a4a;
+            --neu-ink-strong: #2f2f2f;
+            --neu-ink-light: #8a8a8a;
+            --neu-blue: #5b8def;
+            --neu-blue-deep: #3b6fd4;
+            --neu-red: #c25b6e;
+            --neu-green: #3d8b66;
+            --neu-out: -5px -5px 15px var(--neu-light), 5px 5px 15px var(--neu-dark);
+            --neu-out-sm: -4px -4px 10px var(--neu-light), 4px 4px 10px var(--neu-dark);
+            --neu-in: inset -3px -3px 7px var(--neu-light), inset 3px 3px 7px var(--neu-dark);
+        }
+
+        [data-theme="emboss"] body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+            background: var(--neu-bg);
+            color: var(--neu-ink);
+        }
+
+        [data-theme="emboss"] .header h1 {
+            font-family: inherit;
+            letter-spacing: 2px;
+            color: var(--neu-ink-strong);
+        }
+        [data-theme="emboss"] .header h1::before { content: ""; }
+
+        [data-theme="emboss"] .btn {
+            border: none;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: var(--neu-out-sm);
+            color: var(--neu-ink);
+            font-family: inherit;
+            letter-spacing: 0;
+            cursor: pointer;
+        }
+        [data-theme="emboss"] .btn:hover { color: var(--neu-blue); }
+        [data-theme="emboss"] .btn:active { box-shadow: var(--neu-in); }
+        [data-theme="emboss"] .btn.active {
+            background: linear-gradient(145deg, #7dc98f, #5aa86e);
+            color: #fff;
+        }
+        [data-theme="emboss"] .btn.active:hover { color: #fff; filter: brightness(1.06); }
+        [data-theme="emboss"] .btn-primary {
+            background: linear-gradient(145deg, #6b9bf5, #4a7de0);
+            color: #fff;
+        }
+
+        [data-theme="emboss"] .stat-card,
+        [data-theme="emboss"] .health-card,
+        [data-theme="emboss"] .server-info {
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--neu-out);
+        }
+        [data-theme="emboss"] .health-card::before,
+        [data-theme="emboss"] .health-card::after { content: none; }
+
+        [data-theme="emboss"] .stat-num { font-family: inherit; }
+        [data-theme="emboss"] .stat-label { letter-spacing: 1px; }
+        [data-theme="emboss"] .num-total { color: var(--neu-blue); }
+        [data-theme="emboss"] .num-running { color: var(--neu-green); }
+        [data-theme="emboss"] .num-stopped { color: var(--neu-ink-light); }
+        [data-theme="emboss"] .num-unhealthy { color: var(--neu-red); }
+
+        [data-theme="emboss"] .health-name { font-family: inherit; color: var(--neu-ink-strong); }
+        [data-theme="emboss"] .badge-type {
+            background: var(--neu-bg);
+            box-shadow: var(--neu-in);
+            color: var(--neu-blue);
+            border-color: transparent;
+        }
+        [data-theme="emboss"] .badge-running {
+            background: #d9f2e4; color: var(--neu-green); border-color: transparent;
+        }
+        [data-theme="emboss"] .badge-stopped {
+            background: #e0e0e0; color: var(--neu-ink-light); border-color: transparent;
+        }
+        [data-theme="emboss"] .badge-healthy {
+            background: #d9f2e4; color: var(--neu-green); border-color: transparent;
+        }
+        [data-theme="emboss"] .badge-unhealthy {
+            background: #f7dfe3; color: var(--neu-red); border-color: transparent;
+        }
+
+        [data-theme="emboss"] .health-info label { color: var(--neu-ink-light); }
+        [data-theme="emboss"] .health-info a { color: var(--neu-blue); }
+        [data-theme="emboss"] .health-info a:hover { color: var(--neu-blue-deep); }
+        [data-theme="emboss"] .dot-running { background: #5aa86e; }
+        [data-theme="emboss"] .dot-stopped { background: var(--neu-ink-light); }
+        [data-theme="emboss"] .dot-unhealthy { background: var(--neu-red); }
+        [data-theme="emboss"] .empty-state { color: var(--neu-ink-light); }
     </style>
 </head>
 <body>
@@ -435,22 +536,27 @@
             }
         }
 
+        const THEMES = ['chinese', 'modern', 'emboss'];
+        const THEME_LABELS = { chinese: '❖ 国风', modern: '◇ 现代', emboss: '◉ 浮雕' };
+
+        function applyTheme(theme) {
+            document.documentElement.dataset.theme = theme;
+            const btn = document.querySelector('[onclick="toggleTheme()"]');
+            if (btn) btn.textContent = THEME_LABELS[theme] || THEME_LABELS.chinese;
+        }
+
         function toggleTheme() {
             const current = document.documentElement.dataset.theme || 'chinese';
-            const next = current === 'chinese' ? 'modern' : 'chinese';
-            document.documentElement.dataset.theme = next;
-            const btn = document.querySelector('[onclick="toggleTheme()"]');
-            if (btn) btn.textContent = next === 'chinese' ? '❖ 国风' : '◇ 现代';
+            const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+            applyTheme(next);
             try { localStorage.setItem('toolsWeb:theme', next); } catch (e) {}
         }
 
         (function restoreTheme() {
             let saved = null;
             try { saved = localStorage.getItem('toolsWeb:theme'); } catch (e) {}
-            if (saved === 'chinese' || saved === 'modern') {
-                document.documentElement.dataset.theme = saved;
-                const btn = document.querySelector('[onclick="toggleTheme()"]');
-                if (btn) btn.textContent = saved === 'chinese' ? '❖ 国风' : '◇ 现代';
+            if (THEMES.includes(saved)) {
+                applyTheme(saved);
             }
         })();
 

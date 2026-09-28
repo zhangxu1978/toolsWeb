@@ -832,6 +832,229 @@
             color: white;
             border-color: #409eff;
         }
+
+        /* ============================================ */
+        /* ========= 浮雕主题（Neumorphism） =========== */
+        /* ============================================ */
+
+        [data-theme="emboss"] {
+            --neu-bg: #e8e8e8;
+            --neu-light: #ffffff;
+            --neu-dark: #d1d1d1;
+            --neu-ink: #4a4a4a;
+            --neu-ink-strong: #2f2f2f;
+            --neu-ink-light: #8a8a8a;
+            --neu-blue: #5b8def;
+            --neu-blue-deep: #3b6fd4;
+            --neu-red: #c25b6e;
+            --neu-green: #3d8b66;
+            --neu-out: -5px -5px 15px var(--neu-light), 5px 5px 15px var(--neu-dark);
+            --neu-out-sm: -4px -4px 10px var(--neu-light), 4px 4px 10px var(--neu-dark);
+            --neu-in: inset -3px -3px 7px var(--neu-light), inset 3px 3px 7px var(--neu-dark);
+        }
+
+        [data-theme="emboss"] body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+            background: var(--neu-bg);
+            color: var(--neu-ink);
+        }
+
+        [data-theme="emboss"] .header h1 {
+            color: var(--neu-ink-strong);
+            letter-spacing: 2px;
+        }
+
+        [data-theme="emboss"] .theme-toggle {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: var(--neu-out-sm);
+            color: var(--neu-ink);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all .15s;
+        }
+        [data-theme="emboss"] .theme-toggle:hover { color: var(--neu-blue); }
+        [data-theme="emboss"] .theme-toggle:active { box-shadow: var(--neu-in); }
+
+        [data-theme="emboss"] .filter-select {
+            border: none;
+            border-radius: 10px;
+            background: var(--neu-bg);
+            box-shadow: var(--neu-in);
+            color: var(--neu-ink);
+            cursor: pointer;
+        }
+        [data-theme="emboss"] .filter-select:focus {
+            outline: none;
+            box-shadow: var(--neu-in), 0 0 0 2px rgba(91, 141, 239, .35);
+        }
+
+        [data-theme="emboss"] .category-tabs { gap: 10px; }
+        [data-theme="emboss"] .cat-tab {
+            border: none;
+            border-radius: 10px;
+            background: var(--neu-bg);
+            box-shadow: var(--neu-out-sm);
+            color: var(--neu-ink);
+            cursor: pointer;
+        }
+        [data-theme="emboss"] .cat-tab:hover { color: var(--neu-blue); }
+        [data-theme="emboss"] .cat-tab.active {
+            background: var(--neu-bg);
+            box-shadow: var(--neu-in);
+            color: var(--neu-blue);
+            border-color: transparent;
+        }
+
+        [data-theme="emboss"] .tool-cat { border: none; }
+        [data-theme="emboss"] .cat-work { background: #dce8f5; color: #4a6f8f; }
+        [data-theme="emboss"] .cat-life { background: #f5dfe4; color: var(--neu-red); }
+        [data-theme="emboss"] .cat-general { background: #e4efdb; color: #6b8e23; }
+
+        [data-theme="emboss"] .tool-card {
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--neu-out);
+            cursor: grab;
+            transition: transform .2s, box-shadow .2s;
+        }
+        [data-theme="emboss"] .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: -7px -7px 18px var(--neu-light), 7px 7px 18px var(--neu-dark);
+        }
+        [data-theme="emboss"] .tool-card.dragging { opacity: .35; cursor: grabbing; }
+        [data-theme="emboss"] .tool-card.drag-over {
+            box-shadow: var(--neu-out), 0 0 0 2px var(--neu-blue);
+        }
+        [data-theme="emboss"] .drag-handle {
+            position: absolute; top: 14px; left: 12px;
+            color: var(--neu-ink-light);
+            font-size: 14px;
+            opacity: .7;
+            user-select: none;
+            cursor: grab;
+        }
+
+        [data-theme="emboss"] .tool-name { color: var(--neu-ink-strong); }
+        [data-theme="emboss"] .tool-type {
+            background: var(--neu-bg);
+            box-shadow: var(--neu-in);
+            color: var(--neu-blue);
+            border: none;
+            border-radius: 8px;
+            padding: 2px 10px;
+        }
+        [data-theme="emboss"] .tool-info label { color: var(--neu-ink-light); }
+        [data-theme="emboss"] .tool-info p { color: var(--neu-ink); }
+
+        [data-theme="emboss"] .status-running { background: #d9f2e4; color: var(--neu-green); }
+        [data-theme="emboss"] .status-stopped { background: #e0e0e0; color: var(--neu-ink-light); }
+        [data-theme="emboss"] .status-healthy { background: #d9f2e4; color: var(--neu-green); }
+        [data-theme="emboss"] .status-unhealthy { background: #f7dfe3; color: var(--neu-red); }
+
+        [data-theme="emboss"] .btn {
+            border: none;
+            border-radius: 12px;
+            background: var(--neu-bg);
+            box-shadow: var(--neu-out-sm);
+            color: var(--neu-ink);
+            cursor: pointer;
+            transition: all .15s;
+        }
+        [data-theme="emboss"] .btn:hover { color: var(--neu-blue); }
+        [data-theme="emboss"] .btn:active { box-shadow: var(--neu-in); }
+        [data-theme="emboss"] .btn-primary {
+            background: linear-gradient(145deg, #6b9bf5, #4a7de0);
+            box-shadow: var(--neu-out-sm);
+            color: #fff;
+            font-weight: 600;
+        }
+        [data-theme="emboss"] .btn-primary:hover { color: #fff; filter: brightness(1.06); }
+        [data-theme="emboss"] .btn-primary:active { box-shadow: var(--neu-in); }
+        [data-theme="emboss"] .btn-success {
+            background: linear-gradient(145deg, #7dc98f, #5aa86e);
+            box-shadow: var(--neu-out-sm);
+            color: #fff;
+        }
+        [data-theme="emboss"] .btn-success:hover { color: #fff; filter: brightness(1.06); }
+        [data-theme="emboss"] .btn-success:active { box-shadow: var(--neu-in); }
+        [data-theme="emboss"] .btn-warning {
+            background: linear-gradient(145deg, #f0b45e, #dd9a3f);
+            box-shadow: var(--neu-out-sm);
+            color: #fff;
+        }
+        [data-theme="emboss"] .btn-warning:hover { color: #fff; filter: brightness(1.06); }
+        [data-theme="emboss"] .btn-warning:active { box-shadow: var(--neu-in); }
+        [data-theme="emboss"] .btn-danger {
+            background: var(--neu-bg);
+            box-shadow: var(--neu-out-sm);
+            color: var(--neu-red);
+        }
+        [data-theme="emboss"] .btn-danger:hover { color: #a83f52; }
+        [data-theme="emboss"] .btn-danger:active { box-shadow: var(--neu-in); }
+
+        [data-theme="emboss"] .modal-overlay { background: rgba(80, 80, 80, .4); }
+        [data-theme="emboss"] .modal {
+            background: var(--neu-bg);
+            border-radius: 24px;
+            box-shadow: -10px -10px 24px #f4f4f4, 10px 10px 24px #c6c6c6;
+        }
+        [data-theme="emboss"] .modal-header { border-bottom: 1px solid #dcdcdc; }
+        [data-theme="emboss"] .modal-header h2 { color: var(--neu-ink-strong); }
+        [data-theme="emboss"] .modal-footer { border-top: 1px solid #dcdcdc; }
+
+        [data-theme="emboss"] .form-group label { color: var(--neu-ink); }
+        [data-theme="emboss"] .form-group input,
+        [data-theme="emboss"] .form-group select,
+        [data-theme="emboss"] .service-field input,
+        [data-theme="emboss"] .parameter-row input,
+        [data-theme="emboss"] .parameter-row select,
+        [data-theme="emboss"] .service-method,
+        [data-theme="emboss"] .service-name,
+        [data-theme="emboss"] .api-url-input {
+            border: none;
+            border-radius: 10px;
+            background: var(--neu-bg);
+            box-shadow: var(--neu-in);
+            color: var(--neu-ink);
+        }
+        [data-theme="emboss"] .form-group input[type="checkbox"],
+        [data-theme="emboss"] .parameter-row input[type="checkbox"] {
+            box-shadow: none;
+            background: transparent;
+        }
+        [data-theme="emboss"] .form-group input:focus,
+        [data-theme="emboss"] .form-group select:focus {
+            outline: none;
+            box-shadow: var(--neu-in), 0 0 0 2px rgba(91, 141, 239, .35);
+        }
+        [data-theme="emboss"] .service-field .remove-btn {
+            background: linear-gradient(145deg, #e58a97, #d06a7a);
+            border-radius: 8px;
+        }
+        [data-theme="emboss"] .service-item {
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--neu-in);
+        }
+        [data-theme="emboss"] .service-section {
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--neu-out-sm);
+        }
+        [data-theme="emboss"] .parameter-row {
+            background: transparent;
+            border-radius: 10px;
+        }
+        [data-theme="emboss"] .service-item a,
+        [data-theme="emboss"] .tool-info a { color: var(--neu-blue); }
+        [data-theme="emboss"] .service-item a:hover,
+        [data-theme="emboss"] .tool-info a:hover { color: var(--neu-blue-deep); }
     </style>
 </head>
 <body>
@@ -1449,17 +1672,20 @@
         loadTools();
 
         /* ============ 主题切换 ============ */
+        const THEMES = ['chinese', 'modern', 'emboss'];
+        const THEME_LABELS = { chinese: '❖ 国风', modern: '◇ 现代', emboss: '◉ 浮雕' };
+
         function applyTheme(theme) {
             document.documentElement.dataset.theme = theme;
             const btn = document.querySelector('.theme-toggle');
             if (btn) {
-                btn.textContent = theme === 'chinese' ? '❖ 国风' : '◇ 现代';
+                btn.textContent = THEME_LABELS[theme] || THEME_LABELS.chinese;
             }
         }
 
         function toggleTheme() {
             const current = document.documentElement.dataset.theme || 'chinese';
-            const next = current === 'chinese' ? 'modern' : 'chinese';
+            const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
             applyTheme(next);
             try { localStorage.setItem('toolsWeb:theme', next); } catch (e) { /* localStorage 不可用时忽略 */ }
         }
@@ -1467,7 +1693,7 @@
         (function restoreTheme() {
             let saved = null;
             try { saved = localStorage.getItem('toolsWeb:theme'); } catch (e) {}
-            if (saved === 'chinese' || saved === 'modern') {
+            if (THEMES.includes(saved)) {
                 applyTheme(saved);
             }
         })();

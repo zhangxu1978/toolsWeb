@@ -491,5 +491,19 @@
     "autoStart": false,
     "status": "stopped",
     "category": "work"
+  },
+  {
+    "id": "1790501360492",
+    "name": "gitAgent",
+    "type": "npm",
+    "workDir": "D:\\work\\work\\git\\tools\\desktop",
+    "command": "npm run dev",
+    "healthCheckUrl": "",
+    "homeUrl": "",
+    "category": "work",
+    "services": [],
+    "hidden": false,
+    "autoStart": false,
+    "status": "stopped"
   }
 ]
